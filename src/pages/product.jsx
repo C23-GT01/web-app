@@ -3,8 +3,8 @@ import TopDetail from "../components/Section/TopDetail";
 import bg1 from '../assets/img/bg/bg-1.jpg'
 import Resources from "../components/Section/Resources";
 import { useParams } from "react-router-dom";
-
 import { getDetail } from "../utils/data";
+import Process from "../components/Section/Process"
 
 const product = getDetail()[0].data.product;
 
@@ -21,6 +21,7 @@ const ProductPage = () => {
         description={product.description}
       />
       <Resources src={product.image} />
+      <Process src={product.image}/>
       {id}
     </HomeLayout>
   )
