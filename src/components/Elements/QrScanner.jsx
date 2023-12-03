@@ -49,7 +49,7 @@ const QrScanner = ({ isOpen, closeScan }) => {
   return (
     <div className={`fixed top-0 h-screen left-0 right-0 backdrop-blur-[3.2px] z-30 ${isOpen ? 'flex justify-center items-center' : 'hidden'}`}>
 
-      <div className="bg-white p-4">
+      <div className="bg-white p-4 rounded-2xl shadow-2xl">
         <div className="flex justify-between items-center">
           <h1>QR Scanner</h1>
           <button onClick={closeScan}>

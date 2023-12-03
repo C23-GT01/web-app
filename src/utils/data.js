@@ -98,5 +98,41 @@ const getDetail = () => {
     }
   ]
 }
+const getAllProduct = () => {
+  return [
 
-export { getDetail };
+    {
+      "error": false,
+      "status": "success",
+      "message": "Menampilkan semua produk",
+      "count": 3,
+      "data": {
+        "products": [
+          {
+            "id": "product-3_PabLrYn6okMUwr",
+            "name": "Sambal Baby Cumi",
+            "image": "https://picsum.photos/200",
+            "price": 10000,
+            "category": 1
+          },
+          {
+            "id": "product--4PQjQTklQLDLsB2",
+            "name": "Product 2",
+            "image": "https://picsum.photos/200",
+            "price": 30000,
+            "category": 2
+          },
+          {
+            "id": "product-IKqPltKAqIRWSNPw",
+            "name": "Product 3",
+            "image": "https://picsum.photos/200",
+            "price": 50000,
+            "category": 3
+          }
+        ]
+      }
+    }
+  ]
+}
+
+export { getDetail, getAllProduct };
