@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const CardProduct = ({id}) => {
+const CardProduct = ({ id }) => {
   return (
     <Link to={`/product/${id}`} >
       <div className="w-full h-56 bg-slate-600 rounded-xl overflow-hidden flex flex-col  hover:scale-105 drop-shadow-sm" >

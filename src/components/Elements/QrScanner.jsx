@@ -2,12 +2,10 @@ import { MdClose } from "react-icons/md";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useEffect, useState } from "react";
 import Icon from "./Icon";
-import { useNavigate } from "react-router-dom";
 
 
 const QrScanner = ({ isOpen, closeScan }) => {
   const [scanResult, setScanResult] = useState(null);
-  const pindh = useNavigate();
 
   useEffect(() => {
     const scanner = new Html5QrcodeScanner('reader', {
@@ -16,7 +14,7 @@ const QrScanner = ({ isOpen, closeScan }) => {
         height: 250,
       },
       fps: 5,
-      rememberLastUsedCamera: false,
+      rememberLastUsedCamera: true,
     });
 
     scanner.render(success, error);
@@ -24,9 +22,10 @@ const QrScanner = ({ isOpen, closeScan }) => {
     function success(result) {
       scanner.clear();
       setScanResult(result);
-      alert(result)
-      pindh('product/ijashdkasd');
-      // window.location.href = result;
+
+      closeScan()
+      window.location.href = 'http://127.0.0.1:5173/product/tijashdkasd';
+      scanner.clearUserMedia();
     }
 
     function error(err) {
@@ -36,12 +35,13 @@ const QrScanner = ({ isOpen, closeScan }) => {
     return () => {
       scanner.clear();
     };
-  }, [isOpen, pindh]);
+  }, [closeScan, isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
       // Perform cleanup if isOpen becomes false
       setScanResult(null);
+
     }
   }, [isOpen]);
 
