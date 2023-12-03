@@ -6,10 +6,10 @@ const getDetail = () => {
       "data": {
         "product": {
           "id": "product-IKqPltKAqIRWSNPw",
-          "name": "sambal khas",
+          "name": "Sambal Baby Cumi",
           "image": "https://picsum.photos/200",
           "price": 50000,
-          "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+          "description": "Joglo Ayu Tenan is an Indonesian manufacturer of handmade jewelry, fashion accesories, jewelry display , homedeco (cushion, walldeco, table runner,napkin, throw , macrame plant hanger). All products made from variety of materials comes from Indonesia: stones, cooper, silver, seashell, beads, wood, bamboo (jewelry/fashion accesories/display) and natural dyed , ecoprinted organic fabrics , natural fibre (homedeco).",
           "resources": [
             {
               "name": "cabai",

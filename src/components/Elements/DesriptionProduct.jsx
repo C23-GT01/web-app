@@ -2,7 +2,7 @@ import { Children } from "react";
 
 const DescriptionProduct = ({children}) => {
   return (
-    <p>
+    <p className="font-inter">
       {children}
     </p>
   );
