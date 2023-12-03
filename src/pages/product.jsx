@@ -1,6 +1,5 @@
 import HomeLayout from "../components/Layouts/HomeLayouts"
 import TopDetail from "../components/Section/TopDetail";
-import bg1 from '../assets/img/bg/bg-1.jpg'
 import Resources from "../components/Section/Resources";
 import { useParams } from "react-router-dom";
 import { getDetail } from "../utils/data";
