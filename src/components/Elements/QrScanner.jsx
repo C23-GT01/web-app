@@ -22,9 +22,8 @@ const QrScanner = ({ isOpen, closeScan }) => {
     function success(result) {
       scanner.clear();
       setScanResult(result);
-
       closeScan()
-      window.location.href = 'http://127.0.0.1:5173/product/tijashdkasd';
+      window.location.href = result;
       scanner.clearUserMedia();
     }
 
