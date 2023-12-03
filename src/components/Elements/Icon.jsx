@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IconContext } from 'react-icons';
 
-const Icon = ({ children, active = false, hidden = false }) => {
+const Icon = ({ children, active = false, hidden = false, size = "w-[44px] h-[44px]"}) => {
   const childrenWithClassName = React.Children.map(children, (child) => {
     return React.cloneElement(child, {
       className: `${child.props.className} h-full w-full`,
@@ -25,7 +25,7 @@ const Icon = ({ children, active = false, hidden = false }) => {
 
   return (
     <IconContext.Provider value={{ color: iconColor }}>
-      <div className={`w-[44px] h-[44px] ${isHidden} `} onMouseEnter={hoverHandler} onMouseLeave={hoverHandler} >
+      <div className={`${size} ${isHidden} `} onMouseEnter={hoverHandler} onMouseLeave={hoverHandler} >
         {childrenWithClassName}
       </div>
     </IconContext.Provider>
