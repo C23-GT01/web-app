@@ -1,9 +1,9 @@
 import { useRouteError } from "react-router-dom";
 
 const ErrorPage = () => {
-  const error =useRouteError();
+  const error = useRouteError();
 
-  return(
+  return (
     <div>
       <p>Your request page is {error.status} {error.statusText || error.message}</p>
     </div>

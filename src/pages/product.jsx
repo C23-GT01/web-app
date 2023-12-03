@@ -20,7 +20,7 @@ const ProductPage = () => {
         price={product.price}
         description={product.description}
       />
-      <Resources src={bg1} />
+      <Resources src={product.image} />
       {id}
     </HomeLayout>
   )

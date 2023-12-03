@@ -1,6 +1,6 @@
 import { Children } from "react";
 
-const DescriptionProduct = ({children}) => {
+const DescriptionProduct = ({ children }) => {
   return (
     <p className="font-inter">
       {children}

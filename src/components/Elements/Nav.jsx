@@ -4,7 +4,7 @@ import { MdAccountCircle } from "react-icons/md";
 import Icon from "./Icon";
 import { Link } from "react-router-dom";
 
-const Nav = ({openScan}) => {
+const Nav = ({ openScan }) => {
 
   return (
 

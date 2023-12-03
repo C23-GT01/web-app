@@ -8,7 +8,7 @@ const Umkm = () => {
         <CardUmkm />
         <CardUmkm />
         <CardUmkm />
-      </div> 
+      </div>
     </Section>
   );
 };

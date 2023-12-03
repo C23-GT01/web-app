@@ -6,7 +6,7 @@ import bg2 from '../../assets/img/bg/bg-2.jpg'
 import bg3 from '../../assets/img/bg/bg-3.jpg'
 import bg4 from '../../assets/img/bg/bg-4.png'
 
-const Jumbotron = ({jumbotronRef, showSearch}) => {
+const Jumbotron = ({ jumbotronRef, showSearch }) => {
 
   return (
     <div ref={jumbotronRef} className="h-[520px] bg-slate-500 overflow-hidden relative">
