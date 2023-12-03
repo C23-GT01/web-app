@@ -5,8 +5,6 @@ import { getAllProduct} from "../../utils/data";
 
 const products = getAllProduct()[0].data.products;
 
-console.log(products);
-
 const Products = () => {
   return (
     <Section title="Rekomendasi Produk">
