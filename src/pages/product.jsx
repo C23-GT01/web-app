@@ -38,7 +38,7 @@ const ProductPage = () => {
       />
       <Resources />
       <Process />
-      <Impact />
+      <Impact useSummary />
       <Produsen />
     </HomeLayout>
   )

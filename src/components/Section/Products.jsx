@@ -5,9 +5,9 @@ import { getAllProduct} from "../../utils/data";
 
 const products = getAllProduct()[0].data.products;
 
-const Products = () => {
+const Products = ({name="Rekomendasi Produk"}) => {
   return (
-    <Section title="Rekomendasi Produk" nomb>
+    <Section title={name} nomb>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mt-4">
         {
           products.length > 0 
