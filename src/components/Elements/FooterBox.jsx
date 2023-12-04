@@ -1,8 +1,10 @@
+import logo from '../../assets/img/tr-logo.png'
+
 const FooterBox = () => {
     return (
         <>
         <div className="m-auto flex justify-center items-center pt-[70px]">
-            <img src="/src/assets/img/tr-logo.png" alt="" className="w-11" />
+            <img src={logo} alt="" className="w-11 mr-1" />
             <h1 className="text-3xl text-white">TrackMate</h1>
         </div>
         <div className="text-white text-center my-2">

@@ -5,9 +5,9 @@ import { IoIosCall } from "react-icons/io";
 
 const ContactBox = () => {
     return (
-        <div className="w-[500px] h-[30vh] item-center flex justify-center shadow-2xl m-auto rounded-2xl font-inter items-center">
+        <div className="sm:w-[500px] w-[300px] h-[30vh] item-center flex justify-center m-auto rounded-2xl font-inter items-center">
             <div className="flex">
-                <div className="flex gap-3 ml-6">
+                <div className="flex gap-3 ml-6 mr-5">
                     <p><icon className="text-5xl"><IoIosCall></IoIosCall></icon></p>
                     <h3>Phone: 08xxxxxxxx</h3>
                 </div>

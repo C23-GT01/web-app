@@ -1,7 +1,7 @@
 const UmkmSummary = () => {
     return (
         <div className="bg-white py-4 xl:px-0 p-4">
-            <div className="max-w-[1240px] mx-auto flex gap-4 flex-wrap ">
+            <div className="max-w-[1240px] mx-auto flex gap-4 flex-wrap sm:flex-nowrap ">
                 <img src="https://i.ibb.co/BwNSbMb/logo-mamo.jpg" alt="" className="w-[130px] h-[130px] rounded-full" />
                 <div>
                     <h1 className="font-h1 text-2xl font-inter">Sambal Mamo</h1>

@@ -7,7 +7,7 @@ const ProdusenBox = ({ src, name = "...", employe = "...", location = "...", lat
         <div className="flex items-center gap-8 mt-6">
             <img src={src} className="rounded-full w-32 md:w-48" alt="" />
             <div className="flex flex-col gap-2">
-                <a href={`http://localhost:5173/umkm/${id}`}><h1 className="font-inter text-2xl color-[brown] font-semibold" >{name}</h1></a>
+                <a href={`/umkm/${id}`}><h1 className="font-inter text-2xl color-[brown] font-semibold" >{name}</h1></a>
                 <p className="flex gap-2 items-center font-bold ">
                     <Icon size="h-[37x] w-[37px]" active={true}><MdPeople /></Icon>
                     {employe} karyawan

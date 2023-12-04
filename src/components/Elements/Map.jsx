@@ -25,7 +25,7 @@ export default function Map(){
         <AnyReactComponent
           lat={-8.113750063882303}
           lng={115.0913508971701}
-          text={<Icon><MdLocationOn /></Icon>}
+          text={<Icon active><MdLocationOn /></Icon>}
         />
       </GoogleMapReact>
     </div>
