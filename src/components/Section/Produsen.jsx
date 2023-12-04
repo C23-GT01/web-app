@@ -11,7 +11,7 @@ const Produsen = ({ src }) => {
             {
                 (produsen)
                     ? (
-                        <ProdusenBox key={produsen.id} src={produsen.logo} name={produsen.name} employe={produsen.employe} location={produsen.location.name} />
+                        <ProdusenBox key={produsen.id} src={produsen.logo} name={produsen.name} employe={produsen.employe} location={produsen.location.name} lat={produsen.location.lat} lng={produsen.location.lng}/>
                     )
                     : (<p className="menu-list__empty">Nout Found</p>)
             }

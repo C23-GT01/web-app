@@ -1,5 +1,10 @@
 import CardProcess from "../Elements/CardProcess";
 
+import { getDetail } from "../../utils/data";
+
+const process = getDetail()[0].data.product.production;
+
+
 const Process = ({ src }) => {
   return (
     <div className="py-4 xl:px-0 p-4 bg-white">
@@ -9,10 +14,15 @@ const Process = ({ src }) => {
           <div className="w-full h-full bg-[#886345]"></div>
         </div>
         <div>
-          <CardProcess src={src} />
-          <CardProcess src={src} />
-          <CardProcess src={src} />
-          <CardProcess src={src} />
+          {
+            process.length > 0
+              ? (
+                process.map((process, index) => (
+                  <CardProcess key={index} name={process.name} description={process.deskripsi} src={process.image} />
+                ))
+              )
+              : (<p className="menu-list__empty">Nout Found</p>)
+          }
         </div>
       </div>
     </div>

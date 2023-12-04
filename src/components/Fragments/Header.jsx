@@ -36,7 +36,7 @@ const Header = ({ jumbotron, fbBg }) => {
         setHideFloatbar(false);
         timeoutId = setTimeout(() => {
           setHideFloatbar(true);
-        }, 2000);
+        }, 1500);
       }
     };
 

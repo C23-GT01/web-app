@@ -10,8 +10,8 @@ const TopDetail = ({ src, name, price, description }) => {
         {
           src.length > 0
             ? (
-              src.map((src) => (
-                <ImageBox key={src} src={src} />
+              src.map((src, index) => (
+                <ImageBox key={index} src={src} />
               ))
             )
             : (<p className="menu-list__empty">Nout Found</p>)

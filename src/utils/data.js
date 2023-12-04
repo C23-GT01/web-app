@@ -6,16 +6,15 @@ const getDetail = () => {
       "data": {
         "product": {
           "id": "product-IKqPltKAqIRWSNPw",
-          "name": "Sambal Baby Cumi 200 gr",
-          "image": ["https://i.ibb.co/DV6D5rz/Screenshot-2023-12-03-214828.png", "https://picsum.photos/200"],
+          "name": "Sambal Baby Cumi",
+          "image": ["https://i.ibb.co/DV6D5rz/Screenshot-2023-12-03-214828.png"],
           "price": 35000,
           "description": "Sambal yang terbuat dari baby cumi asin yang berasal dari daerah desa Gerokgak, kec. Gerokgak, Kab. Buleleng, beserta aneka cabai dan rempah-rempah bumbu segar tanpa pengawet yang diolah dengan cara dimasak, sehingga memiliki rasa yang pedas, gurih dan nikmat. Cocok jika dimakan bersama nasi panas. Bahan Dasar : baby cumi, bawang merah, bawang putih, cabai merah, garam, gula merah, minyak goreng kita.",
 
           "resources": [
             {
               "name": "Cumi",
-              "umkm": "Sukamaju",
-              "image": "https://picsum.photos/200",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
               "location": {
                 "lat": -8.186783684711543,
                 "lng": 114.79727725464201,
@@ -25,8 +24,7 @@ const getDetail = () => {
             },
             {
               "name": "Cabai merah",
-              "umkm": "Sukamaju",
-              "image": "https://picsum.photos/200",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
               "location": {
                 "lat": -8.150842973969299,
                 "lng": 115.20642388864296,
@@ -36,7 +34,7 @@ const getDetail = () => {
             },
             {
               "name": "Bawang merah & bawang putih",
-              "image": "https://picsum.photos/200",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
               "location": {
                 "lat": -8.077836975643697,
                 "lng": 115.14505543863339,
@@ -46,7 +44,7 @@ const getDetail = () => {
             },
             {
               "name": "Gula merah",
-              "image": "https://picsum.photos/200",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
               "location": {
                 "lat": -8.229092945843295,
                 "lng": 115.04194724632835,
@@ -56,7 +54,7 @@ const getDetail = () => {
             },
             {
               "name": "Garam",
-              "image": "https://picsum.photos/200",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
               "location": {
                 "lat": -8.131350922863891,
                 "lng": 115.35520049874509,
@@ -66,80 +64,77 @@ const getDetail = () => {
             },
             {
               "name": "Minyak goreng",
-              "image": "https://picsum.photos/200",
-              "location": {
-                "lat": -34.397,
-                "lng": 150.644,
-                "name": "New York, US",
-              },
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "location": "",
               "deskripsi": "Menggunakan minyak goreng yang bersertifikat halal dan higienis sehingga menghasilkan kualitas sambal yang baik."
             },
           ],
           "production": [
             {
               "name": "pengumpulan bahan baku",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": "..."
             },
             {
-              "name": "penumbukan",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "name": "pembuatan",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": "..."
             },
             {
               "name": "pengemasan",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": ".."
             }
           ],
           "impact": [
             {
-              "name": "Meminimalisir potensi jejak karbon baik secara individu/kelompok",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "name": "Carbon Footprint",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": "Meminimalisir potensi jejak karbon baik secara individu/kelompok"
             },
             {
-              "name": "Melakukan tracing dalam upaya pengurangan limbah sekitar lingkungan usaha",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "name": "Waste Manageent",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": "Melakukan tracing dalam upaya pengurangan limbah sekitar lingkungan usaha"
             },
             {
-              "name": "Menilik upaya efisiensi penggunaan air",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "name": "Water Use",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": "Meniliki upaya efisiensi penggunaan air"
             },
             {
-              "name": "Memiliki daur hidup produk agar membantu meminimalisir kerusakan lingkungan",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "name": "Product Lyfecycle",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": "Memiliki daur hidup produk agar membantu meminimalisir kerusakan lingkungan"
             },
             {
-              "name": "Mengukur kadar keamanan produk dalam penggunaan, keberlanjutan bahan baku dan pemanfaatan potensi daur ulang produk",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "name": "Health and Safety",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": "Mengukur kadar keamanan produk dalam penggunaan, keberlanjutan bahan baku dan pemanfaatan potensi daur ulang produk"
             },
             {
-              "name": "Menilik iklim komunikasi dalam lingkup pekerjaan dan sosial yang berkaitan dengan kesejahteraan dan kenyamanan pekerja",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "name": "Working Condition",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": "Menilik iklim komunikasi dalam lingkup pekerjaan dan sosial yang berkaitan dengan kesejahteraan dan kenyamanan pekerja"
             },
             {
-              "name": "Meninjau pemenuhan hak-hak pekerja dalam berbagai aspek dengan berlandaskan regulasi yang berlaku hingga dimungkinkan adanya standarisasi ",
-              "image": "https://picsum.photos/200",
-              "deskripsi": "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+              "name": "Human Right",
+              "image": "https://i.ibb.co/0fr1VCg/image.jpg",
+              "deskripsi": "Meninjau pemenuhan hak-hak pekerja dalam berbagai aspek dengan berlandaskan regulasi yang berlaku hingga dimungkinkan adanya standarisasi"
             }
           ],
-          "contribution": [1, 2, 4],
+          "contribution": [1, 3, 5, 6, 7, 8, 9],
           "umkm": {
             "id": "Umkm-VKDhH1FD3QbdzH6s",
             "logo": "https://i.ibb.co/BwNSbMb/logo-mamo.jpg",
             "name": "Sambal Mamo",
             "location": {
-              "lat": -34.397,
-              "lng": 150.644,
-              "name": "Depan rumah sakit tentara, Jl. Ngurah Rai, Banjar Jawa, Kec. Buleleng, Kabupaten Buleleng, Bali 81113"
+            
+              "lat": -8.113750063882303,
+              "lng":  115.0913508971701,
+              "name": "Jl. Ngurah Rai,  Buleleng, Bali"
             },
-            "employe": 1000
+            "employe": '...'
           },
           "category": 1,
           "createdAt": "2023-11-22T06:58:51.120Z",
@@ -161,22 +156,22 @@ const getAllProduct = () => {
         "products": [
           {
             "id": "product-3_PabLrYn6okMUwr",
-            "name": "Sambal Baby Cumi",
-            "image": "https://picsum.photos/200",
-            "price": 10000,
+            "name": "Sambal Baby Cumi ",
+            "image": "https://i.ibb.co/DV6D5rz/Screenshot-2023-12-03-214828.png",
+            "price": 35000,
             "category": 1
           },
           {
             "id": "product--4PQjQTklQLDLsB2",
             "name": "Product 2",
-            "image": "https://picsum.photos/200",
+            "image": "https://i.ibb.co/0fr1VCg/image.jpg",
             "price": 30000,
             "category": 2
           },
           {
             "id": "product-IKqPltKAqIRWSNPw",
             "name": "Product 3",
-            "image": "https://picsum.photos/200",
+            "image": "https://i.ibb.co/0fr1VCg/image.jpg",
             "price": 50000,
             "category": 3
           }

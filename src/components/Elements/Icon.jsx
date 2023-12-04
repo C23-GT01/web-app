@@ -25,9 +25,9 @@ const Icon = ({ children, active = false, hidden = false, size = "w-[44px] h-[44
 
   return (
     <IconContext.Provider value={{ color: iconColor }}>
-      <div className={`${size} ${isHidden} `} onMouseEnter={hoverHandler} onMouseLeave={hoverHandler} >
+      <span  className={`${size} ${isHidden} block`} onMouseEnter={hoverHandler} onMouseLeave={hoverHandler} >
         {childrenWithClassName}
-      </div>
+      </span>
     </IconContext.Provider>
   );
 };
