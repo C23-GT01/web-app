@@ -1,15 +1,16 @@
 import CardImpact from "../Elements/CardImpact";
+import Section from "./Index";
+import Summary from "./Summary";
 
 import { getDetail } from "../../utils/data";
 
 const impact = getDetail()[0].data.product.impact;
 
-const Impact = ({ src }) => {
+const Impact = () => {
   return (
-    <div className="py-4 xl:px-0 p-4">
-      <h1 className="font-h1 font-inter text-xl">Produk Impact</h1>
-      <div className="flex gap-4 w-full flex-wrap overflow-x-auto scrollbar-thin py-8 ">
-      {
+    <Section title="Produk Impact">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-8 mt-4">
+        {
           impact.length > 0
             ? (
               impact.map((impact, index) => (
@@ -19,7 +20,8 @@ const Impact = ({ src }) => {
             : (<p className="menu-list__empty">Nout Found</p>)
         }
       </div>
-    </div>
+      <Summary />
+    </Section>
   );
 };
 

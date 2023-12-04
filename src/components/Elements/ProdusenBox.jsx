@@ -4,7 +4,7 @@ import Icon from "./Icon";
 
 const ProdusenBox = ({ src, name = "...", employe = "...", location = "...", lat, lng }) => {
     return (
-        <div className="flex items-center gap-8 justify-center">
+        <div className="flex items-center gap-8 mt-6">
             <img src={src} className="rounded-full w-32 md:w-48" alt="" />
             <div className="flex flex-col gap-2">
                 <h1 className="font-inter text-2xl color-[brown] font-semibold" >{name}</h1>

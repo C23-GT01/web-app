@@ -1,20 +1,34 @@
-import HomeLayout from "../components/Layouts/HomeLayouts"
+import React, { useState, useEffect } from "react";
+import HomeLayout from "../components/Layouts/HomeLayouts";
 import TopDetail from "../components/Section/TopDetail";
 import Resources from "../components/Section/Resources";
 import { useParams } from "react-router-dom";
 import { getDetail } from "../utils/data";
-import Process from "../components/Section/Process"
+import Process from "../components/Section/Process";
 import Impact from "../components/Section/Impact";
-import Summary from "../components/Section/Summary";
 import Produsen from "../components/Section/Produsen";
 
-const product = getDetail()[0].data.product;
-
-
 const ProductPage = () => {
+  const [scrollPosition, setScrollPosition] = useState(0);
   const { id } = useParams();
+  const product = getDetail()[0].data.product;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const position = window.scrollY;
+      setScrollPosition(position);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const fbBg = scrollPosition > 100 ? 'transparent' : 'transparent';
+
   return (
-    <HomeLayout>
+    <HomeLayout fbBg={fbBg}>
 
       <TopDetail
         src={product.image}
@@ -22,14 +36,12 @@ const ProductPage = () => {
         price={product.price}
         description={product.description}
       />
-      <Resources src={product.image} />
-      <Process src={product.image} />
-      <Impact src={product.image} />
-      <Summary />
-      <Produsen src={product.image} />
+      <Resources />
+      <Process />
+      <Impact />
+      <Produsen />
     </HomeLayout>
   )
-
 }
 
 export default ProductPage;

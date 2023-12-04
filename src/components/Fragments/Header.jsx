@@ -49,7 +49,7 @@ const Header = ({ jumbotron, fbBg }) => {
   }, []);
 
   return (
-    <header>
+    <header >
       <FLotbar bg={fbBg} openScan={openScan} showSearch={showSearch} hidden={hideFloatbar} />
       {jumbotron ? (<Jumbotron showSearch={showSearch} jumbotronRef={jumbotronRef} />) : null}
       <QrScanner isActive={true} isOpen={isOpen} closeScan={openScan}></QrScanner>

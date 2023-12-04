@@ -1,5 +1,5 @@
 import CardUmkm from "../Elements/CardUmkm";
-import Section from "./Section";
+import Section from "./Index";
 
 const Umkm = () => {
   return (

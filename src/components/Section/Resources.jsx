@@ -1,13 +1,13 @@
 import CardResource from "../Elements/CardResource";
 import { getDetail } from "../../utils/data";
+import Section from "./Index";
 
 const resources = getDetail()[0].data.product.resources;
 
 const Resources = ({ src }) => {
   return (
-    <div className="py-4 xl:px-0 p-4">
-      <h1 className="font-h1 font-inter text-xl">Bahan Baku</h1>
-      <div className="flex gap-4 w-full overflow-auto scrollbar-thin py-8 ">
+    <Section title='Bahan Baku'>
+      <div className="flex gap-4 w-full overflow-auto scrollbar-none py-8 ">
         {
           resources.length > 0
             ? (
@@ -18,7 +18,7 @@ const Resources = ({ src }) => {
             : (<p className="menu-list__empty">Nout Found</p>)
         }
       </div>
-    </div>
+    </Section>
   );
 };
 

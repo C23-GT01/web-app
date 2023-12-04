@@ -93,7 +93,7 @@ const getDetail = () => {
               "deskripsi": "Meminimalisir potensi jejak karbon baik secara individu/kelompok"
             },
             {
-              "name": "Waste Manageent",
+              "name": "Waste Management",
               "image": "https://i.ibb.co/0fr1VCg/image.jpg",
               "deskripsi": "Melakukan tracing dalam upaya pengurangan limbah sekitar lingkungan usaha"
             },
