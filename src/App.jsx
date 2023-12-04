@@ -1,6 +1,8 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import ProductPage from './pages/product.jsx'
 import HomePage from './pages/home.jsx'
+import UmkmPage from './pages/umkm.jsx'
+
 
 const App = () => {
   return (
@@ -8,6 +10,7 @@ const App = () => {
       <Routes>
         <Route path='/' element={<HomePage />} />
         <Route path='/product/:id' element={<ProductPage />} />
+        <Route path='/umkm/:id' element={<UmkmPage />} />
       </Routes>
     </BrowserRouter>
   );
