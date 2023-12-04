@@ -6,9 +6,9 @@ import { getDetail } from "../../utils/data";
 
 const impact = getDetail()[0].data.product.impact;
 
-const Impact = () => {
+const Impact = ({name="Produk Impact",useSummary=false}) => {
   return (
-    <Section title="Produk Impact">
+    <Section title={name}>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-8 mt-4">
         {
           impact.length > 0
@@ -20,7 +20,9 @@ const Impact = () => {
             : (<p className="menu-list__empty">Nout Found</p>)
         }
       </div>
-      <Summary />
+      {
+        (useSummary)?<Summary />:""
+      }
     </Section>
   );
 };
