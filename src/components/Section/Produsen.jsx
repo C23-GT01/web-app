@@ -3,7 +3,6 @@ import Section from "./Index";
 import { getDetail } from "../../utils/data";
 
 const produsen = getDetail()[0].data.product.umkm;
-console.log(produsen);
 
 const Produsen = () => {
     return (
