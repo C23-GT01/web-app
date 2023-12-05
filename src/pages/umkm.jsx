@@ -51,7 +51,7 @@ const UmkmPage = () => {
   // }
 
   return (
-    <HomeLayout>
+    <HomeLayout title={umkm.name}>
       <UmkmImage src={umkm.image}/>
       <UmkmSummary logo={umkm.logo} name={umkm.name} description={umkm.description}/>
       <Products name="Produk" />

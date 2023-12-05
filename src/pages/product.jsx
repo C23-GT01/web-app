@@ -38,7 +38,8 @@ const ProductPage = () => {
   }
 
   return (
-    <HomeLayout fbBg={fbBg}>
+    <HomeLayout fbBg={fbBg} title={product.name} >
+
 
       <TopDetail
         src={product.image}
@@ -48,7 +49,7 @@ const ProductPage = () => {
       />
       <Resources data={product.resources} />
       <Process data={product.production} />
-      <Impact useSummary data={product.impact} summary={product.summary} />
+      <Impact useSummary data={product.impact} summary={product.contribution} />
       <Produsen data={product.umkm} />
     </HomeLayout>
   )

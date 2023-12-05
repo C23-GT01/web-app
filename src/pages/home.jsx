@@ -31,10 +31,10 @@ const HomePage = () => {
   //   return null;
   // }
   return (
-    <HomeLayout jumbotron={true} nodiv home>
+    <HomeLayout jumbotron={true} nodiv title='Home' home>
       <FIlter />
       <Products />
-      <Umkm umkm={umkm}/>
+      <Umkm umkm={umkm} />
     </HomeLayout>
   )
 
