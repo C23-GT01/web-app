@@ -1,16 +1,13 @@
 import ProdusenBox from "../Elements/ProdusenBox";
 import Section from "./Index";
-import { getDetail } from "../../utils/data";
 
-const produsen = getDetail()[0].data.product.umkm;
-
-const Produsen = () => {
+const Produsen = ({data}) => {
     return (
         <Section title="Produsen" nomb>
             {
-                (produsen)
+                (data)
                     ? (
-                        <ProdusenBox id= {produsen.id} key={produsen.id} src={produsen.logo} name={produsen.name} employe={produsen.employe} location={produsen.location.name} lat={produsen.location.lat} lng={produsen.location.lng} />
+                        <ProdusenBox id= {data.id} key={data.id} src={data.logo} name={data.name} employe={data.employe} location={data.location.name} lat={data.location.lat} lng={data.location.lng} />
                     )
                     : (<p className="menu-list__empty">Nout Found</p>)
             }

@@ -3,7 +3,7 @@ import Section from "./Index";
 import Summary from "./Summary";
 
 
-const Impact = ({name="Produk Impact", useSummary=false, data}) => {
+const Impact = ({name="Produk Impact", useSummary=false, data, summary=false}) => {
   return (
     <Section title={name}>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-8 mt-4">
@@ -18,7 +18,7 @@ const Impact = ({name="Produk Impact", useSummary=false, data}) => {
         }
       </div>
       {
-        (useSummary)?<Summary />:""
+        (useSummary)?<Summary data={summary} />:""
       }
     </Section>
   );

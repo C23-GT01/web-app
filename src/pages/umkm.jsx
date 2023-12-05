@@ -8,7 +8,7 @@ import History from "../components/Section/History";
 import Impact from "../components/Section/Impact";
 import ContactUs from "../components/Section/ContactUs";
 import { getDetailUmkm } from "../utils/data";
-
+import ErrorPage from "./404";
 
 // import axios from 'axios';
 // import React, { useState, useEffect } from 'react';
@@ -17,8 +17,15 @@ import { getDetailUmkm } from "../utils/data";
 // Make a request for a user with a given ID
 const UmkmPage = () => {
   const { id } = useParams();
-  const umkm = getDetailUmkm(id)[0].data.umkm;
-  console.log(umkm);
+  let umkm
+  const response = getDetailUmkm(id);
+  if (!response[0].error) {
+    umkm = response[0].data.umkm;
+  } else {
+    return (
+      <ErrorPage />
+    )
+  }
   
 
   // const [umkm, setUmkm] = useState(null);

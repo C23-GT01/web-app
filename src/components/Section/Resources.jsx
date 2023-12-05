@@ -1,17 +1,17 @@
 import CardResource from "../Elements/CardResource";
-import { getDetail } from "../../utils/data";
 import Section from "./Index";
 
-const resources = getDetail()[0].data.product.resources;
 
-const Resources = ({ src }) => {
+const Resources = ({data}) => {
+  console.log(data);
+  
   return (
     <Section title='Bahan Baku'>
       <div className="flex gap-4 w-full overflow-auto scrollbar-none py-8 ">
         {
-          resources.length > 0
+         data.length > 0
             ? (
-              resources.map((resource, index) => (
+             data.map((resource, index) => (
                 <CardResource key={index} name={resource.name} description={resource.deskripsi} src={resource.image} umkm={resource.umkm || null} location={resource.location.name || null} lat={resource.location.lat || null} lng={resource.location.lng || null} />
               ))
             )

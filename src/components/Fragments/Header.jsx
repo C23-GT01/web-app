@@ -3,7 +3,7 @@ import FLotbar from "../Elements/Floatbar";
 import QrScanner from "../Elements/QrScanner";
 import { useEffect, useRef, useState } from 'react';
 
-const Header = ({ jumbotron, fbBg }) => {
+const Header = ({ jumbotron, fbBg, home=false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const openScan = () => {
     setIsOpen(!isOpen);
@@ -50,7 +50,7 @@ const Header = ({ jumbotron, fbBg }) => {
 
   return (
     <header >
-      <FLotbar bg={fbBg} openScan={openScan} showSearch={showSearch} hidden={hideFloatbar} />
+      <FLotbar bg={fbBg} openScan={openScan} showSearch={showSearch} hidden={hideFloatbar} home={home} />
       {jumbotron ? (<Jumbotron showSearch={showSearch} jumbotronRef={jumbotronRef} />) : null}
       <QrScanner isActive={true} isOpen={isOpen} closeScan={openScan}></QrScanner>
     </header>

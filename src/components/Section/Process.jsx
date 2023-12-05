@@ -1,11 +1,7 @@
 import CardProcess from "../Elements/CardProcess";
 import Section from "./Index";
-import { getDetail } from "../../utils/data";
 
-const process = getDetail()[0].data.product.production;
-
-
-const Process = () => {
+const Process = ({data}) => {
   return (
     <Section title="Proses Produksi">
       <div className="flex">
@@ -14,9 +10,9 @@ const Process = () => {
         </div>
         <div>
           {
-            process.length > 0
+            data.length > 0
               ? (
-                process.map((process, index) => (
+                data.map((process, index) => (
                   <CardProcess key={index} name={process.name} description={process.deskripsi} src={process.image} />
                 ))
               )

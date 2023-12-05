@@ -2,7 +2,6 @@ import ContactBox from "../Elements/ContactBox";
 import Section from "./Index";
 
 const ContactUs = ({ data }) => {
-    console.log(data);
     let wa = false;
     let phone = false;
     if (data.phone.isWhatsApp) {

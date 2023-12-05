@@ -7,11 +7,11 @@ import { getDetail } from "../utils/data";
 import Process from "../components/Section/Process";
 import Impact from "../components/Section/Impact";
 import Produsen from "../components/Section/Produsen";
+import ErrorPage from "./404";
 
 const ProductPage = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const { id } = useParams();
-  const product = getDetail()[0].data.product;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,6 +27,16 @@ const ProductPage = () => {
 
   const fbBg = scrollPosition > 100 ? 'transparent' : 'transparent';
 
+  let product
+  const response = getDetail(id);
+  if (!response[0].error) {
+    product = response[0].data.product;
+  } else {
+    return (
+      <ErrorPage />
+    )
+  }
+
   return (
     <HomeLayout fbBg={fbBg}>
 
@@ -36,10 +46,10 @@ const ProductPage = () => {
         price={product.price}
         description={product.description}
       />
-      <Resources />
-      <Process />
-      <Impact useSummary />
-      <Produsen />
+      <Resources data={product.resources} />
+      <Process data={product.production} />
+      <Impact useSummary data={product.impact} summary={product.summary} />
+      <Produsen data={product.umkm} />
     </HomeLayout>
   )
 }

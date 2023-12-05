@@ -3,7 +3,7 @@ import Section from "./Index";
 
 const Umkm = ({ umkm }) => {
   return (
-    <Section title="UMKM Terdekat">
+    <Section title="UMKM Partner">
       <div className="flex gap-4 flex-wrap mt-4">
         {
           umkm.length > 0

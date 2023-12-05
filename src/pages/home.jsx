@@ -31,7 +31,7 @@ const HomePage = () => {
   //   return null;
   // }
   return (
-    <HomeLayout jumbotron={true} nodiv>
+    <HomeLayout jumbotron={true} nodiv home>
       <FIlter />
       <Products />
       <Umkm umkm={umkm}/>

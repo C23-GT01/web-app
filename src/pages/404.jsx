@@ -1,14 +1,16 @@
-import { useRouteError } from "react-router-dom";
+import HomeLayout from "../components/Layouts/HomeLayouts"
+
 
 const ErrorPage = () => {
-  const error = useRouteError();
 
   return (
-    <div>
-      <p>Your request page is {error.status} {error.statusText || error.message}</p>
-    </div>
+    <HomeLayout  nodiv>
+      <div className="w-full h-[100vh] flex justify-center items-center">
+        <h1 className="font-inter text-7xl text-[#BBB]">404 | Not Found</h1>
+      </div>
+    </HomeLayout>
   )
 
 }
 
-export default ErrorPage
+export default ErrorPage;
