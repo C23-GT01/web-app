@@ -9,7 +9,7 @@ const Umkm = ({ umkm }) => {
           umkm.length > 0
             ? (
               umkm.map((umkm, index) => (
-                <CardUmkm id={umkm.id} key={index} name={umkm.name} image={umkm.image} />
+                <CardUmkm id={umkm.id} key={index} name={umkm.name} image={umkm.logo} />
               ))
             )
             : (<p className="menu-list__empty">Not Found</p>)
