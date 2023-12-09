@@ -9,8 +9,10 @@ import Produsen from "../components/Section/Produsen";
 import axios from 'axios';
 import ErrorPage from "./404";
 import React, { useState, useEffect } from "react";
+import Loading from "../components/Elements/Loading";
 
 const ProductPage = () => {
+  const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   useEffect(() => {
@@ -40,15 +42,24 @@ const ProductPage = () => {
 
 
 
-  // let product
-  // const response = getDetail(id);
-  // if (!response[0].error) {
-  //   product = response[0].data.product;
-  // } else {
-  //   return (
-  //     <ErrorPage />
-  //   )
-  // }
+  useEffect(() => {
+    if (product) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 700);
+    }
+  }, [product]);
+
+
+  // Tampilkan loading jika data belum diambil
+  if (loading) {
+    return (
+      <div className=" h-screen w-screen flex justify-center items-center">
+        <Loading />;
+      </div>
+    )
+  }
+
   if (!product) {
     return null;
   }

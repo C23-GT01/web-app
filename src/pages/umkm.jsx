@@ -11,19 +11,11 @@ import { getDetailUmkm } from "../utils/data";
 import ErrorPage from "./404";
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Loading from "../components/Elements/Loading";
 
 const UmkmPage = () => {
   const { id } = useParams();
-  // let umkm
-  // const response = getDetailUmkm(id);
-  // if (!response[0].error) {
-  //   umkm = response[0].data.umkm;
-  // } else {
-  //   return (
-  //     <ErrorPage />
-  //   )
-  // }
-
+  const [loading, setLoading] = useState(true);
 
   const [umkm, setUmkm] = useState(null);
 
@@ -50,6 +42,25 @@ const UmkmPage = () => {
         console.log(error);
       });
   }, [id]);
+
+
+  useEffect(() => {
+    if (product && umkm) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 700);
+    }
+  }, [product, umkm]);
+
+
+  // Tampilkan loading jika data belum diambil
+  if (loading) {
+    return (
+      <div className=" h-screen w-screen flex justify-center items-center">
+        <Loading />;
+      </div>
+    )
+  }
 
 
   if (!umkm) {
