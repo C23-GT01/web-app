@@ -1,51 +1,45 @@
-import { MdLocationOn } from "react-icons/md";
-import React, { useState, useRef, useEffect } from "react";
-import GoogleMapReact from 'google-map-react';
-import Icon from "./Icon";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React from 'react';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 
-const Marker = ({ text = "Here" }) => <div>{text}</div>;
+const containerStyle = {
+  width: '100%',
+  height: '60vh'
+};
 
-export default function Map({ lat, lng }) {
-  const [mapPosition, setMapPosition] = useState({ lat, lng });
-  const [markerPosition, setMarkerPosition] = useState({ lat, lng });
-  const map = useRef(null);
-  const zoom = 14;
-
-  useEffect(() => {
-    setMapPosition({ lat, lng });
-    setMarkerPosition({ lat, lng });
-  }, [lat, lng]);
-
-  const handleMapChange = ({ center }) => {
-    if (map.current && center) {
-      const lat = center.lat;
-      const lng = center.lng;
-      const latDiff = mapPosition.lat - lat;
-      const lngDiff = mapPosition.lng - lng;
-
-      setMarkerPosition({
-        lat: markerPosition.lat - latDiff,
-        lng: markerPosition.lng - lngDiff,
-      });
-      setMapPosition({ lat, lng });
-    }
+function Map({ lat, lng }) {
+  const center = {
+    lat: lat,
+    lng: lng
   };
 
-  return (
-    <div style={{ height: '60vh', width: '100%' }}>
-      <GoogleMapReact
-        ref={map}
-        bootstrapURLKeys={{ key: "AIzaSyBEkv6dNWZFd4MGOz-AZxkjhP9fYUwxkvE" }}
-        center={mapPosition}
-        defaultZoom={zoom}
-        onChange={handleMapChange}
-      >
-        <Marker
-          lat={markerPosition.lat}
-          lng={markerPosition.lng}
-          text={<Icon active><MdLocationOn /></Icon>}
-        />
-      </GoogleMapReact>
-    </div>
-  );
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: 'AIzaSyCmR6EH3XkpW8VYFpVGhlxImlBv4yrNEuE'
+  });
+
+  const [map, setMap] = React.useState(null);
+
+  const onLoad = React.useCallback(function callback(map) {
+    setMap(map);
+  }, []);
+
+  const onUnmount = React.useCallback(function callback(map) {
+    setMap(null);
+  }, []);
+
+  return isLoaded ? (
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={center}
+      zoom={12} // Set your desired zoom level here
+      onLoad={onLoad}
+      onUnmount={onUnmount}
+    >
+      <Marker position={center} >
+      </Marker>
+    </GoogleMap>
+  ) : <></>;
 }
+
+export default Map;

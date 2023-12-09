@@ -11,7 +11,7 @@ const Impact = ({name="Produk Impact", useSummary=false, data, summary=false}) =
           data.length > 0
             ? (
               data.map((impact, index) => (
-                <CardImpact key={index} name={impact.name} description={impact.deskripsi} src={impact.image} />
+                <CardImpact key={index} name={impact.name} description={impact.description} src={impact.image} />
               ))
             )
             : (<p className="menu-list__empty">Not Impact</p>)

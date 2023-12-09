@@ -3,7 +3,6 @@ import Section from "./Index";
 
 
 const Resources = ({data}) => {
-  console.log(data);
   
   return (
     <Section title='Bahan Baku'>
@@ -12,7 +11,7 @@ const Resources = ({data}) => {
          data.length > 0
             ? (
              data.map((resource, index) => (
-                <CardResource key={index} name={resource.name} description={resource.deskripsi} src={resource.image} umkm={resource.umkm || null} location={resource.location.name || null} lat={resource.location.lat || null} lng={resource.location.lng || null} />
+                <CardResource key={index} name={resource.name} description={resource.description} src={resource.image} umkm={resource.umkm || null} location={resource.location.name || null} lat={resource.location.lat || null} lng={resource.location.lng || null} />
               ))
             )
             : (<p className="menu-list__empty">Nout Found</p>)
