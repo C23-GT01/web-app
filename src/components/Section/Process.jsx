@@ -4,7 +4,7 @@ import Section from "./Index";
 import AddBox from "../Elements/AddBox";
 import ModalLayout from "../Layouts/ModalLayouts";
 import { useState } from "react";
-import AddProcess from "./Addprocess";
+import AddProcess from "./AddProcess";
 import Icon from "../Elements/Icon";
 import accessToken from "../../utils/accesToken";
 import axios from "axios";
