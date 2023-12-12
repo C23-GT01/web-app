@@ -16,7 +16,7 @@ function Map({ lat, lng }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     // eslint-disable-next-line no-undef
-    googleMapsApiKey: process.env.GoogleMapAPI
+    googleMapsApiKey: 'AIzaSyCmR6EH3XkpW8VYFpVGhlxImlBv4yrNEuE'
   });
 
   const [map, setMap] = React.useState(null);

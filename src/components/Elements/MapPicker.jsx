@@ -8,7 +8,7 @@ const containerStyle = {
   height: '40vh'
 };
 
-function Map({handleGet, position}) {
+function Map({ handleGet, position }) {
 
   // const [position, setPosition] = useState({ lat: -6.2088, lng: 106.8456 });
 
@@ -23,7 +23,7 @@ function Map({handleGet, position}) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     // eslint-disable-next-line no-undef
-    googleMapsApiKey: process.env.GoogleMapAPI
+    googleMapsApiKey: 'AIzaSyCmR6EH3XkpW8VYFpVGhlxImlBv4yrNEuE'
   });
 
 
