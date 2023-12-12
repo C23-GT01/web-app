@@ -22,7 +22,8 @@ function Map({handleGet, position}) {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: 'AIzaSyCmR6EH3XkpW8VYFpVGhlxImlBv4yrNEuE'
+    // eslint-disable-next-line no-undef
+    googleMapsApiKey: process.env.GoogleMapAPI
   });
 
 
