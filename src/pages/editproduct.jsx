@@ -11,7 +11,7 @@ import ErrorPage from "./404";
 import React, { useState, useEffect } from "react";
 import Loading from "../components/Elements/Loading";
 
-const ProductPage = () => {
+const EditProductPage = () => {
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -48,7 +48,6 @@ const ProductPage = () => {
       setTimeout(() => {
         setLoading(false);
       }, 700);
-      console.log(product);
     }
   }, [product]);
 
@@ -77,12 +76,12 @@ const ProductPage = () => {
         price={product.price}
         description={product.description}
       />
-      <Resources data={product.resources} />
-      <Process data={product.production} />
-      <Impact useSummary data={product.impact} summary={product.contribution} />
+      <Resources data={product.resources} select />
+      <Process data={product.production} product={product} edited/>
+      <Impact useSummary data={product.impact} summary={product.contribution} select />
       <Produsen data={product.umkm} />
     </HomeLayout>
   )
 }
 
-export default ProductPage;
+export default EditProductPage;

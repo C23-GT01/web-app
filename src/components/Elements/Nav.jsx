@@ -4,14 +4,13 @@ import { MdAccountCircle } from "react-icons/md";
 import Icon from "./Icon";
 import { Link } from "react-router-dom";
 
-const Nav = ({ openScan, home=false }) => {
-
+const Nav = ({ openScan, home = false, openLogin }) => {
   return (
 
     <nav className="flex h-full items-center justify-between gap-4">
       <Link to='/'><Icon active={home} ><MdHome /></Icon></Link>
       <button onClick={openScan}><Icon><MdQrCodeScanner /></Icon></button>
-      <Icon><MdAccountCircle /></Icon>
+      <Icon ><MdAccountCircle onClick={openLogin} /></Icon>
     </nav>
   );
 };

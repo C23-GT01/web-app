@@ -19,7 +19,7 @@ const Search = () => {
         <Icon active={isActive}><MdSearch /></Icon>
         <input
           type="text"
-          className="w-80 h-8 outline-none gap-2 font-semibold text-xl placeholder:font-semibold placeholder:text-xl font-inter"
+          className="w-80 h-8 outline-none gap-2 font-semibold text-xl placeholder:font-semibold placeholder:text-lg md:placeholder:text-xl font-inter"
           placeholder="Temukan produk lokal unggulan"
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}

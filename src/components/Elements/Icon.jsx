@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IconContext } from 'react-icons';
 
-const Icon = ({ children, active = false, hidden = false, size = "w-[44px] h-[44px]"}) => {
+const Icon = ({ children, nonactive = false, active = false, hidden = false, size = "w-[44px] h-[44px]"}) => {
   const childrenWithClassName = React.Children.map(children, (child) => {
     return React.cloneElement(child, {
       className: `${child.props.className} h-full w-full`,
@@ -15,7 +15,7 @@ const Icon = ({ children, active = false, hidden = false, size = "w-[44px] h-[44
   }, [active]);
 
   const hoverHandler = () => {
-    if (!active) {
+    if (!active && !nonactive) {
       setIsHovered(!isHovered);
     }
   };

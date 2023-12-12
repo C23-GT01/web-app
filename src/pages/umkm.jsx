@@ -9,56 +9,73 @@ import Impact from "../components/Section/Impact";
 import ContactUs from "../components/Section/ContactUs";
 import { getDetailUmkm } from "../utils/data";
 import ErrorPage from "./404";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Loading from "../components/Elements/Loading";
 
-// import axios from 'axios';
-// import React, { useState, useEffect } from 'react';
-//const axios = require('axios'); // legacy way
-
-// Make a request for a user with a given ID
 const UmkmPage = () => {
   const { id } = useParams();
-  let umkm
-  const response = getDetailUmkm(id);
-  if (!response[0].error) {
-    umkm = response[0].data.umkm;
-  } else {
+  const [loading, setLoading] = useState(true);
+
+  const [umkm, setUmkm] = useState(null);
+
+  useEffect(() => {
+    axios.get(`https://c23-gt01-01.et.r.appspot.com/umkm/${id}`)
+      .then(function (response) {
+
+        setUmkm(response.data.data.umkm);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }, [id]);
+
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    axios.get(`https://c23-gt01-01.et.r.appspot.com/products/umkm/${id}`)
+      .then(function (response) {
+
+        setProduct(response.data.data.products);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }, [id]);
+
+
+  useEffect(() => {
+    if (product && umkm) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 700);
+    }
+  }, [product, umkm]);
+
+
+  // Tampilkan loading jika data belum diambil
+  if (loading) {
     return (
-      <ErrorPage />
+      <div className=" h-screen w-screen flex justify-center items-center">
+        <Loading />;
+      </div>
     )
   }
-  
 
-  // const [umkm, setUmkm] = useState(null);
 
-  // useEffect(() => {
-  //   // Fetch data when the component mounts
-  //   axios.get(`https://c23-gt01-01.et.r.appspot.com/umkm`)
-  //     .then(function (response) {
-  //       // handle success
-  //       setUmkm(response.data.data.umkm);
-  //     })
-  //     .catch(function (error) {
-  //       // handle error
-  //       console.log(error);
-  //     });
-  // }, [id]); // Include 'id' as a dependency to refetch data when the 'id' changes
-
-  // console.log(umkm);
-
-  // if (!umkm) {
-  //   // If data is still being fetched, you can return a loading indicator or null
-  //   return null;
-  // }
+  if (!umkm) {
+    return null;
+  }
 
   return (
     <HomeLayout title={umkm.name}>
-      <UmkmImage src={umkm.image}/>
-      <UmkmSummary logo={umkm.logo} name={umkm.name} description={umkm.description}/>
-      <Products name="Produk" />
+      <UmkmImage src={umkm.image} />
+      <UmkmSummary logo={umkm.logo} name={umkm.name} description={umkm.description} />
+      <Products name="Produk" data={product} />
       <Location data={umkm.location} />
       <History data={umkm.history} />
       <Impact name="UMKM Impact" data={umkm.impact} />
-      <ContactUs data={umkm.contact[0]}/>
+      <ContactUs data={umkm.contact === null ? null : umkm.contact[0]} />
     </HomeLayout>
   );
 }

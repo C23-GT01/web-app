@@ -1,17 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import { useState } from 'react';
 
 const containerStyle = {
   width: '100%',
-  height: '60vh'
+  height: '40vh'
 };
 
-function Map({ lat, lng }) {
-  const center = {
-    lat: lat,
-    lng: lng
-  };
+function Map({handleGet, position}) {
+
+  // const [position, setPosition] = useState({ lat: -6.2088, lng: 106.8456 });
+
+  // const handleMapClick = (event) => {
+  //   setPosition({
+  //     lat: event.latLng.lat(),
+  //     lng: event.latLng.lng(),
+  //   });
+
+  // }
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -19,28 +26,18 @@ function Map({ lat, lng }) {
     googleMapsApiKey: process.env.GoogleMapAPI
   });
 
-  const [map, setMap] = React.useState(null);
-
-  const onLoad = React.useCallback(function callback(map) {
-    setMap(map);
-  }, []);
-
-  const onUnmount = React.useCallback(function callback(map) {
-    setMap(null);
-  }, []);
 
   return isLoaded ? (
     <GoogleMap
       mapContainerStyle={containerStyle}
-      center={center}
-      zoom={12} 
-      onLoad={onLoad}
-      onUnmount={onUnmount}
+      center={position}
+      zoom={5} // Set your desired zoom level here
+      onClick={handleGet}
     >
-      <Marker position={center} >
-      </Marker>
+      <Marker position={position} />
     </GoogleMap>
   ) : <></>;
+
 }
 
 export default Map;
