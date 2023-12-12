@@ -15,7 +15,8 @@ function Map({ lat, lng }) {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: 'AIzaSyCmR6EH3XkpW8VYFpVGhlxImlBv4yrNEuE'
+    // eslint-disable-next-line no-undef
+    googleMapsApiKey: process.env.GoogleMapAPI
   });
 
   const [map, setMap] = React.useState(null);
@@ -32,7 +33,7 @@ function Map({ lat, lng }) {
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={center}
-      zoom={12} // Set your desired zoom level here
+      zoom={12} 
       onLoad={onLoad}
       onUnmount={onUnmount}
     >

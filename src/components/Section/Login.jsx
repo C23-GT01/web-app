@@ -1,17 +1,32 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Loading from '../Elements/Loading';
+import Cookies from 'js-cookie';
+import { useEffect } from 'react';
 
 const Login = ({ move }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isFilled, setIsFilled] = useState(false);
+  const [statusLoading, setStatusLoading] = useState("Sedang Login");
 
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
+    checkIsFilled(event.target.value, password);
   };
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
+    checkIsFilled(username, event.target.value);
+
+  };
+
+  const checkIsFilled = (usernameValue, passwordValue) => {
+    if (usernameValue.trim() !== '' && passwordValue.trim() !== '') {
+      setIsFilled(true);
+    } else {
+      setIsFilled(false);
+    }
   };
 
   const [loading, setLoading] = useState(false);
@@ -19,39 +34,58 @@ const Login = ({ move }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const loginData = {
         username,
         password
       };
-
-
       const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/authentications', loginData);
 
       const accessToken = response.data.data.accessToken;
       const refreshToken = response.data.data.refreshToken;
 
+      const refreshTokenExpires = new Date();
+      refreshTokenExpires.setDate(refreshTokenExpires.getDate() + 7);
 
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      const accessTokenExpires = new Date();
+      accessTokenExpires.setSeconds(accessTokenExpires.getSeconds() + 100);
 
-      alert(response.data.message);
-      move('Account')
+      Cookies.set("refreshToken", refreshToken, { expires: refreshTokenExpires });
+      Cookies.set('accessToken', accessToken, { expires: accessTokenExpires });
+
+      setStatusLoading(response.data.message);
+
 
     } catch (error) {
       console.error('Error:', error);
-      alert(error.response.data.message)
-    } finally {
-      setLoading(false); // Mengubah state loading menjadi false setelah proses selesai, baik berhasil maupun gagal
+      setStatusLoading(error.response.data.messag);
     }
-  };
+
+
+  }
+
+
+  useEffect(() => {
+    if (statusLoading === 'Login berhasil') {
+      setTimeout(() => {
+        setLoading(false);
+        move('Account')
+      }, 1500);
+    } else if (statusLoading === 'Username / Password Salah') {
+      setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+    }
+  }, [move, statusLoading]);
+
 
   return (
-    <div className="max-w-md mx-auto p-4 ">
+    <div className="w-full mx-auto p-4">
       {loading ? (
         <div className="loading-indicator">
           <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>Sedang Login</h1>
+          <h1 className='text-sm font-inter mt-1 text-center'>{statusLoading}</h1>
         </div>
       ) : (
         <form onSubmit={handleLogin}>
@@ -63,7 +97,7 @@ const Login = ({ move }) => {
               value={username}
               onChange={handleUsernameChange}
               className="w-full border rounded-md py-2 px-3"
-              autoComplete="off"
+
               required
             />
           </div>
@@ -75,11 +109,11 @@ const Login = ({ move }) => {
               value={password}
               onChange={handlePasswordChange}
               className="w-full border rounded-md py-2 px-3"
-              autoComplete="off"
+
               required
             />
           </div>
-          <button type="submit" className="bg-[#BBB] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345]">
+          <button type="submit" className={`${isFilled ? 'bg-[#886345]' : 'bg-[#BBB]'} text-white py-2 px-4 rounded-md w-full mt-2  ${isFilled && 'hover:bg-[#6f5138]'}`} disabled={!isFilled}>
             Login
           </button>
 

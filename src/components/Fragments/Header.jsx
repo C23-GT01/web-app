@@ -6,6 +6,9 @@ import ModalLayout from "../Layouts/ModalLayouts";
 import Login from "../Section/Login";
 import Register from "../Section/Register";
 import Account from "../Section/Account";
+import Cookies from "js-cookie";
+import AddResource from "../Section/AddResource";
+import AddUmkm from "../Section/AddUmkm";
 
 const Header = ({ jumbotron, fbBg, home = false }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,34 +56,24 @@ const Header = ({ jumbotron, fbBg, home = false }) => {
   }, []);
 
   // Login Modal
-
-
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [contentModal, setContentModal] = useState('Account');
+
+  useEffect(() => {
+    const isLoggedIn = Cookies.get('refreshToken');
+    setContentModal(isLoggedIn ? 'Account' : 'Login');
+  }, []);
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    const isLoggedIn = Cookies.get('refreshToken');
+    setContentModal(isLoggedIn ? 'Account' : 'Login');
+  }
+
 
   const handleOpenLogin = () => {
     setIsModalOpen(true);
   };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-
-  const [contentModal, setContentModal] = useState('Account');
-
-
-  useEffect(() => {
-    // Cek local storage untuk mengecek status login
-    const isLoggedIn = localStorage.getItem('refreshToken');
-
-    if (!isLoggedIn) {
-      // Jika tidak ada status login, tampilkan modal login
-      setContentModal('Login');
-    } else {
-      // Jika sudah login, tampilkan halaman account
-      setContentModal('Account');
-    }
-  }, []);
 
   const handleContentModal = (val) => {
     setContentModal(val);
@@ -95,6 +88,10 @@ const Header = ({ jumbotron, fbBg, home = false }) => {
     modalContent = <Register move={() => handleContentModal('Login')} />;
   } else if (contentModal === 'Account') {
     modalContent = <Account move={handleContentModal} />;
+  } else if (contentModal === 'Tambah Bahan Baku') {
+    modalContent = <AddResource />;
+  } else if (contentModal === 'Registrasi UMKM') {
+    modalContent = <AddUmkm />;
   }
 
   return (

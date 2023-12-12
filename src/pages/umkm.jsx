@@ -75,7 +75,7 @@ const UmkmPage = () => {
       <Location data={umkm.location} />
       <History data={umkm.history} />
       <Impact name="UMKM Impact" data={umkm.impact} />
-      <ContactUs data={umkm.contact[0]} />
+      <ContactUs data={umkm.contact === null ? null : umkm.contact[0]} />
     </HomeLayout>
   );
 }
