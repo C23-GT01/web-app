@@ -5,8 +5,11 @@
             "destination": "/"
         }
     ],
-    "env": {
-        "GoogleMapAPI": "AIzaSyCmR6EH3XkpW8VYFpVGhlxImlBv4yrNEuE",
-        "ENVIRONMENT": "production"
-    }
+    "routes": [
+        {
+            "src": "/[^.]+",
+            "dest": "/",
+            "status": 200
+        }
+    ]
 }
