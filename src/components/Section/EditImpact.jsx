@@ -7,37 +7,35 @@ import Loading from "../Elements/Loading";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 
-const EditUmkmSummary = ({ move }) => {
-  const { id } = useParams();
+const EditImpact = ({ id }) => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false);
   const [statusPost, setStatusPost] = useState('Mulai Mengupload');
   const [selectedFile, setSelectedFile] = useState(false);
-  const [description, setDescription] = useState('');
-  const [nameUmkm, setNameUmkm] = useState('');
   const [fileLocation, setFileLocation] = useState('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
   const [fileLocationUpdated, setFileLocationUpdated] = useState(false);
-  const [umkm, setUmkm] = useState(false);
+  const [impacts, setImpacts] = useState(false);
+  const [description, setDescription] = useState('');
+  const [nameImpact, setNameImpact] = useState('');
 
-
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
-  };
-  const handleNameUmkmChange = (event) => {
-    setNameUmkm(event.target.value);
-  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-
-    // Check if a file was selected before updating fileLocation
     if (file) {
       setFileLocation(URL.createObjectURL(file));
     } else {
       setFileLocation('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
     }
   };
+
+  const handleDescriptionChange = (event) => {
+    setDescription(event.target.value);
+  };
+  const handleNameImpactChange = (event) => {
+    setNameImpact(event.target.value);
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,12 +49,13 @@ const EditUmkmSummary = ({ move }) => {
             }
           };
 
-          const response = await axios.get(`https://c23-gt01-01.et.r.appspot.com/umkm/profile`, config);
-          setUmkm(response.data.data.umkm);
-          if (response.data.data.umkm.history !== null) {
-            setDescription(response.data.data.umkm.description);
-            setFileLocation(response.data.data.umkm.logo);
-            setNameUmkm(response.data.data.umkm.name);
+          const response = await axios.get(`https://c23-gt01-01.et.r.appspot.com/impacts/${id}`, config);
+          setImpacts(response.data.data.impact);
+          console.log(response.data.data.impact)
+          if (response.data.data.impact.image !== null) {
+            setFileLocation(response.data.data.impact.image);
+            setDescription(response.data.data.impact.description);
+            setNameImpact(response.data.data.impact.name);
           }
         } else {
           console.log('No access token available.');
@@ -67,7 +66,7 @@ const EditUmkmSummary = ({ move }) => {
     };
 
     fetchData();
-  }, []);
+  }, [id]);
 
 
   const handleSubmit = async (event) => {
@@ -132,24 +131,15 @@ const EditUmkmSummary = ({ move }) => {
               },
             };
 
-            const historyData = {
+
+
+            const updatedImpactData = {
               image: imageLocation,
-              text: description,
-            };
-
-            const updatedUmkmData = {
-              image: umkm.image,
-              logo: imageLocation,
-              history: historyData,
               description: description,
-              employe: umkm.employe,
-              impact: umkm.impact,
-              name: nameUmkm,
-              location: umkm.location,
-              contact: umkm.contact,
+              name: nameImpact,
             };
 
-            const response = await axios.put(`https://c23-gt01-01.et.r.appspot.com/umkm`, updatedUmkmData, config);
+            const response = await axios.put(`https://c23-gt01-01.et.r.appspot.com/impacts/${id}`, updatedImpactData, config);
             alert(response.data.message);
 
             setLoading(false);
@@ -163,13 +153,12 @@ const EditUmkmSummary = ({ move }) => {
         } finally {
           setStatusPost('Selesai')
           setLoading(false)
-          // navigate(0);
         }
       }
     };
 
     fetchData();
-  }, [fileLocationUpdated, fileLocation, description, statusPost, navigate, id, umkm, nameUmkm]);
+  }, [fileLocationUpdated, fileLocation, statusPost, navigate, id, description, nameImpact]);
 
 
   return (
@@ -182,7 +171,7 @@ const EditUmkmSummary = ({ move }) => {
       ) : (
         <form onSubmit={handleSubmit} className='grid gap-4'>
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="fileInput" className="block font-semibold mb-1">Gambar</label>
+            <label htmlFor="fileInput" className="block font-semibold mb-1">Banner</label>
             <div className="w-full h-72 border rounded-md relative flex justify-center">
               {selectedFile ? (
                 <img
@@ -216,8 +205,8 @@ const EditUmkmSummary = ({ move }) => {
             <input
               type="text"
               id="nameUmkm"
-              value={nameUmkm}
-              onChange={handleNameUmkmChange}
+              value={nameImpact}
+              onChange={handleNameImpactChange}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
@@ -237,11 +226,12 @@ const EditUmkmSummary = ({ move }) => {
               required
             />
           </div>
+
           <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
             Konfirmasi
           </button>
+          
 
-          <h2 onClick={() => move('Edit Banner')} className='text-sm font-inter mt-1 text-center text-[#aa7b56] hover:text-[#604732] md:col-span-2'>Edit Banner</h2>
 
         </form>)}
     </div>
@@ -249,4 +239,4 @@ const EditUmkmSummary = ({ move }) => {
   );
 };
 
-export default EditUmkmSummary;
+export default EditImpact;

@@ -15,6 +15,7 @@ const Account = ({ move }) => {
   const [hasUmkm, setHasUmkm] = useState('');
   const [notLogin, setNotLogin] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [statusLoading, setStatusLoading] = useState("Loading");
 
 
   useEffect(() => {
@@ -79,6 +80,7 @@ const Account = ({ move }) => {
     setLoading(true);
     const refreshToken = Cookies.get('refreshToken');
     Cookies.remove("refreshToken");
+    setStatusLoading('Sedang Logout');
     try {
       const response = await axios({
         method: 'delete',
@@ -87,7 +89,7 @@ const Account = ({ move }) => {
       });
 
       console.log(response.data);
-
+      setStatusLoading('Logout berhasil!');
       alert('Logout berhasil!');
       move('Login')
 
@@ -96,6 +98,7 @@ const Account = ({ move }) => {
       alert('Logout berhasil!');
       move('Login')
     } finally {
+      setStatusLoading('Loading');
       setLoading(false); // Mengubah state loading menjadi false setelah proses selesai, baik berhasil maupun gagal
     }
 
@@ -106,7 +109,7 @@ const Account = ({ move }) => {
       {loading ? (
         <div className="loading-indicator">
           <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>Sedang Logout</h1>
+          <h1 className='text-sm font-inter mt-1 text-center'>{statusLoading}</h1>
         </div>
       ) : (
         <div className='grid sm:grid-cols-2 gap-4 -mt-4'>

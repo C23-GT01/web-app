@@ -59,7 +59,7 @@ const Login = ({ move }) => {
 
     } catch (error) {
       console.error('Error:', error);
-      setStatusLoading(error.response.data.messag);
+      setStatusLoading(error.response.data.message);
     }
 
 

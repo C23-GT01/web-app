@@ -77,7 +77,7 @@ const EditProductPage = () => {
         description={product.description}
       />
       <Resources data={product.resources} select />
-      <Process data={product.production} product={product} edited/>
+      <Process data={product.production} product={product} edited />
       <Impact useSummary data={product.impact} summary={product.contribution} select />
       <Produsen data={product.umkm} />
     </HomeLayout>
