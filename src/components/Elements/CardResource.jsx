@@ -26,7 +26,7 @@ const CardResource = ({ src, name = "...", description = "...", umkm = null, loc
                             Authorization: `Bearer ${token}`
                         }
                     };
-                    const response = await axios.delete(`http://c23-gt01-01.et.r.appspot.com/resources/${id}`, config);
+                    const response = await axios.delete(`https://c23-gt01-01.et.r.appspot.com/resources/${id}`, config);
                     alert(response.data.message);
                     setLoadingDelete(false);
                 }

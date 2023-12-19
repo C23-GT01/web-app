@@ -30,7 +30,7 @@ const CardProduct = ({ id, image, name, price, edited = false }) => {
               Authorization: `Bearer ${token}`
             }
           };
-          const response = await axios.delete(`http://c23-gt01-01.et.r.appspot.com/products/${id}`, config);
+          const response = await axios.delete(`https://c23-gt01-01.et.r.appspot.com/products/${id}`, config);
           alert(response.data.message);
           setLoadingDelete(false);
         }

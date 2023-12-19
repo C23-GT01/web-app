@@ -22,8 +22,8 @@ const UmkmSummary = ({ logo, name = '...', description = '...', edited = false }
 
     if (contentModal === "Edit Banner") {
         modalContent = <EditBanner move={handleOpenModal} />
-    } else if (contentModal === "Edit Info UMKM"){
-        modalContent = <EditUmkmSummary  move={handleOpenModal} />
+    } else if (contentModal === "Edit Info UMKM") {
+        modalContent = <EditUmkmSummary move={handleOpenModal} />
     }
 
 
