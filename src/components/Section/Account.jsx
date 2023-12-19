@@ -1,3 +1,9 @@
+import { FaHandHoldingHeart } from "react-icons/fa";
+import { BsStack } from "react-icons/bs";
+import { MdStore } from "react-icons/md";
+import { AiFillShop } from "react-icons/ai";
+import { MdAddBusiness, MdBusiness } from "react-icons/md";
+import { MdLogout } from "react-icons/md";
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Loading from '../Elements/Loading';
@@ -7,6 +13,7 @@ import isHasUmkm from '../../utils/isHasUmkm';
 import Dashboard from './Dashboard';
 import accessToken from '../../utils/accesToken';
 import ErrorPage from '../../pages/404';
+import Icon from '../Elements/Icon';
 
 
 const Account = ({ move }) => {
@@ -120,23 +127,38 @@ const Account = ({ move }) => {
 
           {hasUmkm ?
             <>
-              <Link to={'/umkm/profile'} className=" h-32 outline py-2 px-4 rounded-md mt-2 hover:scale-105 ">
+              <Link to={'/umkm/profile'} className=" h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around ">
+                <Icon active>
+                  <MdStore />
+                </Icon>
                 Manajemen UMKM
               </Link>
-              <Link to={'/umkm/resource'} className=" h-32 outline py-2 px-4 rounded-md mt-2 hover:scale-105 ">
+              <Link to={'/umkm/resource'} className=" h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around ">
+                <Icon active>
+                  <BsStack />
+                </Icon>
                 Manajemen Bahan Baku
               </Link>
-              <Link to={'/umkm/impact'} className=" h-32 outline py-2 px-4 rounded-md mt-2 hover:scale-105 ">
+              <Link to={'/umkm/impact'} className=" h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around ">
+                <Icon active>
+                  <FaHandHoldingHeart />
+                </Icon>
                 Manajemen Impact
               </Link>
             </>
             :
-            <div onClick={() => move('Registrasi UMKM')} className=" h-32 outline py-2 px-4 rounded-md mt-2 hover:scale-105 ">
+            <div onClick={() => move('Registrasi UMKM')} className=" h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around ">
+              <Icon active>
+                <MdAddBusiness />
+              </Icon>
               Buat UMKM
             </div>
           }
 
-          <div className="h-32 outline py-2 px-4 rounded-md mt-2 hover:scale-105 " onClick={handleLogout}>
+          <div className="h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around " onClick={handleLogout}>
+            <Icon active>
+              <MdLogout />
+            </Icon>
             Logout
           </div>
         </div>
