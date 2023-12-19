@@ -1,17 +1,38 @@
 import { MdSearch } from "react-icons/md";
 import Icon from "./Icon";
 import { useState } from "react";
+import ModalLayout from "../Layouts/ModalLayouts";
+import MobileDownload from "../Section/MobileDownload";
 
 const Search = () => {
   const [isActive, setIsActive] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [contentModal, setContentModal] = useState("Account");
 
   const handleInputFocus = () => {
     setIsActive(true);
+    handleOpenModal();
   };
 
   const handleInputBlur = () => {
     setIsActive(false);
   };
+
+
+  const handleOpenModal = (val = "Download Mobile App") => {
+    setContentModal(val);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  let modalContent = null;
+
+  if (contentModal === "Download Mobile App") {
+    modalContent = <MobileDownload />
+  }
 
   return (
     <div className="absolute top-0 w-full h-full flex justify-center items-center px-4">
@@ -25,6 +46,11 @@ const Search = () => {
           onBlur={handleInputBlur}
         />
       </div>
+      {isModalOpen && (
+        <ModalLayout title={contentModal} onClose={handleCloseModal}>
+          {modalContent}
+        </ModalLayout>
+      )}
     </div>
   );
 };

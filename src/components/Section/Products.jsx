@@ -5,7 +5,7 @@ import ModalLayout from "../Layouts/ModalLayouts";
 import { useState } from "react";
 import AddProduct from "./AddProduct";
 
-const Products = ({ name = "Rekomendasi Produk", data, edited = false }) => {
+const Products = ({ name = "Semua Produk", data, edited = false }) => {
 
 
 
