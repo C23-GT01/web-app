@@ -52,7 +52,7 @@ const AddImpact = ({ move }) => {
             }
           };
 
-          const response = await axios.post('http://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
+          const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
           console.log('Server response:', response.data.data.fileLocation);
           setFileLocation(response.data.data.fileLocation);
           setFileLocationUpdated(true);
@@ -97,7 +97,7 @@ const AddImpact = ({ move }) => {
               description: description
             };
 
-            const response = await axios.post('http://c23-gt01-01.et.r.appspot.com/impacts', impactData, config);
+            const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/impacts', impactData, config);
             setStatusPost('Selesai')
             alert(response.data.message);
           } else {

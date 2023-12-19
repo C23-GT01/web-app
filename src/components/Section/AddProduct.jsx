@@ -68,7 +68,7 @@ const AddProduct = ({ move }) => {
             }
           };
 
-          const response = await axios.post('http://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
+          const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
           console.log('Server response:', response.data.data.fileLocation);
           setFileLocation(response.data.data.fileLocation);
           console.log('Server response:', response.data.data.fileLocation);
@@ -123,7 +123,7 @@ const AddProduct = ({ move }) => {
               category: category
             };
 
-            const response = await axios.post('http://c23-gt01-01.et.r.appspot.com/products', productData, config);
+            const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/products', productData, config);
             setStatusPost('Selesai');
             alert(response.data.message);
 

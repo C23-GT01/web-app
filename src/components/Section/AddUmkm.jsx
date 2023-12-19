@@ -92,7 +92,7 @@ const AddUmkm = ({ move }) => {
             }
           };
 
-          const response = await axios.post('http://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
+          const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
           console.log('Server response:', response.data.data.fileLocation);
           setFileLocation(response.data.data.fileLocation);
           setFileLocationUpdated(true);
@@ -146,7 +146,7 @@ const AddUmkm = ({ move }) => {
               description: description
             };
 
-            const response = await axios.post('http://c23-gt01-01.et.r.appspot.com/umkm', umkmData, config);
+            const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/umkm', umkmData, config);
             setStatusPost('Selesai')
             alert(response.data.message);
           } else {
@@ -163,7 +163,7 @@ const AddUmkm = ({ move }) => {
     };
 
     fetchData();
-  }, [fileLocationUpdated, fileLocation, description, name, statusPost, navigate, position, location]);
+  }, [fileLocationUpdated, fileLocation, description, name, statusPost, navigate, position, location, employe]);
 
 
   return (
