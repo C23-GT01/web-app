@@ -23,7 +23,7 @@ function Map({ handleGet, position }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     // eslint-disable-next-line no-undef
-    googleMapsApiKey: 'AIzaSyCmR6EH3XkpW8VYFpVGhlxImlBv4yrNEuE'
+    googleMapsApiKey: process.env.GOOGLE_MAP_API
   });
 
 
