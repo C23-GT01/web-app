@@ -6,9 +6,6 @@ import { useState } from "react";
 import AddProduct from "./AddProduct";
 
 const Products = ({ name = "Semua Produk", data, edited = false }) => {
-
-
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contentModal, setContentModal] = useState('Account');
 
@@ -49,7 +46,6 @@ const Products = ({ name = "Semua Produk", data, edited = false }) => {
           {modalContent}
         </ModalLayout>
       }
-
     </Section>
   );
 };
