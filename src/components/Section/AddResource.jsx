@@ -1,290 +1,342 @@
-import { MdPhotoCamera } from "react-icons/md";
-import React, { useState, useEffect } from 'react';
-import MapPicker from '../Elements/MapPicker';
-import Icon from '../Elements/Icon';
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
+/* eslint-disable no-case-declarations */
+import React, { useState, useEffect } from "react";
 import Loading from "../Elements/Loading";
-import { useNavigate } from "react-router-dom";
+import CropImage from "./CropImage";
+import Map from "../Elements/MapPicker";
+import Alert from "../Elements/Alert";
+import Button from "../Elements/Button";
+import base64ToBlob from "../../utils/toBlob";
+import { upload } from "../../services/upload.service";
+import { addResource } from "../../services/resource.service";
 
-const AddResource = ({ move }) => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState('Mulai Mengupload');
-  const [selectedFile, setSelectedFile] = useState(false);
-  const [name, setName] = useState('');
-  const [umkm, setUmkm] = useState(null);
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
-  const [position, setPosition] = useState({ lat: -6.2088, lng: 106.8456 });
-  const [fileLocation, setFileLocation] = useState('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
-  const [fileLocationUpdated, setFileLocationUpdated] = useState(false);
+const AddResource = ({
+  refreshProduct = () => {},
+  closeModal = () => {},
+  noClose = () => {},
+  move = false,
+}) => {
+  const [resource, setResource] = useState({
+    name: "",
+    image: "",
+    description: "",
+    umkm: "",
+    lat: -6.2088,
+    lng: 106.8456,
+    address: "",
+  });
 
-  const handleNameChange = (event) => {
-    setName(event.target.value);
+  // Input
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleInput = (event) => {
+    const { name, value, type, checked } = event.target;
+    setResource((prevResource) => ({
+      ...prevResource,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
-  const handleUmkmChange = (event) => {
-    setUmkm(event.target.value);
+
+  // Input Image
+  const handleFileChange = (file) => {
+    setResource((prevResource) => ({
+      ...prevResource,
+      image: file,
+    }));
   };
 
+  const handleCrop = (value) => {
+    setIsEditing(value);
+  };
+
+  //Input Map
   const handleLatChange = (event) => {
     const lat = parseFloat(event.target.value);
-    setPosition({
-      ...position,
-      lat: isNaN(lat) ? 0 : lat, // Menetapkan nilai 0 jika input tidak valid atau kosong
-    });
+    setResource((prevUmkm) => ({
+      ...prevUmkm,
+      lat: isNaN(lat) ? 0 : lat,
+    }));
   };
 
   const handleLngChange = (event) => {
     const lng = parseFloat(event.target.value);
-    setPosition({
-      ...position,
-      lng: isNaN(lng) ? 0 : lng, // Menetapkan nilai 0 jika input tidak valid atau kosong
-    });
-  };
-
-
-  const handleLocationChange = (event) => {
-    setLocation(event.target.value);
-  };
-
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
+    setResource((prevResource) => ({
+      ...prevResource,
+      lng: isNaN(lng) ? 0 : lng,
+    }));
   };
 
   const handleMapClick = (event) => {
-    setPosition({
+    setResource((prevResource) => ({
+      ...prevResource,
       lat: event.latLng.lat(),
       lng: event.latLng.lng(),
-    });
+    }));
   };
 
-
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
+  const handlePositionChange = (newPosition, newAddress) => {
+    setResource((prevResource) => ({
+      ...prevResource,
+      lat: newPosition.lat,
+      lng: newPosition.lng,
+      address: newAddress,
+    }));
   };
 
+  // Validasi
+  const [resourceError, setResourceError] = useState({
+    name: "",
+    image: "",
+    description: "",
+    umkm: "",
+    lat: "",
+    lng: "",
+    address: "",
+  });
 
+  const validateField = (name, value) => {
+    if (name === "umkm") {
+      return "";
+    }
 
-  const handleSubmit = async (event) => {
-    setLoading(true);
-    event.preventDefault();
+    if (typeof value === "string" && value.trim() === "") {
+      return " ";
+    }
 
-    const file = selectedFile;
-
-    try {
-
-
-      if (selectedFile) {
-        setStatusPost('Sedang Mengupload Gambar')
-        const formData = new FormData();
-        formData.append('data', file);
-
-        const token = await accessToken();
-
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-
-          const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
-          console.log('Server response:', response.data.data.fileLocation);
-          setFileLocation(response.data.data.fileLocation);
-          setFileLocationUpdated(true);
-
-        } else {
-          console.log('No access token available.');
-        }
-      } else {
-        setFileLocationUpdated(true);
-      }
-
-
-
-    } catch (error) {
-      console.error('Error uploading image:', error);
-
-    } finally {
-      setStatusPost('Upload Gambar Selesai')
-
+    switch (name) {
+      case "name":
+        return value.length >= 3 ? "" : "Nama minimal 3 karakter";
+      case "description":
+        return value.length >= 10 ? "" : "Deskripsi minimal 10 karakter";
+      case "lat":
+        const latPattern = /^-?\d+(\.\d+)?$/;
+        return latPattern.test(value) ? "" : "Latitude tidak valid";
+      case "lng":
+        const lngPattern = /^-?\d+(\.\d+)?$/;
+        return lngPattern.test(value) ? "" : "Longitude tidak valid";
+      case "address":
+        return value.length >= 5 ? "" : "Alamat minimal 5 karakter";
+      case "image":
+        return isEditing ? "Selesaikan Cropping" : "";
+      default:
+        return "";
     }
   };
 
-
   useEffect(() => {
-    setStatusPost('Sedang Mengupload Data')
-    const fetchData = async () => {
-      if (fileLocationUpdated) {
+    const errors = {};
+    Object.keys(resource).forEach((key) => {
+      errors[key] = validateField(key, resource[key], resource);
+    });
+    setResourceError(errors);
 
-        try {
-          setFileLocationUpdated(false);
-          setStatusPost('Sedang Mengupload Data')
-          let imageLocation = fileLocation; // Ambil lokasi gambar dari respons upload
+    const hasErrors = Object.values(errors).some((error) => error !== "");
+    setIsSubmitDisabled(hasErrors);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resource, isEditing]);
 
-          const token = await accessToken();
+  // Submit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
 
-          if (token) {
-            const config = {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            };
-            const resourceData = {
-              name: name,
-              image: imageLocation,
-              location: {
-                lat: position.lat,
-                lng: position.lng,
-                name: location
-              },
-              umkm: umkm,
-              description: description
-            };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-            const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/resources', resourceData, config);
-            setStatusPost('Selesai')
-            alert(response.data.message);
-          } else {
-            console.log('No access token available.');
-          }
-        } catch (error) {
-          console.error('Error posting resource:', error);
-        } finally {
-          setStatusPost('Mulai Mengupload')
-          setLoading(false)
-          navigate(0);
-        }
-      }
+    // Triming
+    const name = resource.name.trim();
+    const location = resource.address.trim();
+    const description = resource.description.trim();
+    const position = {
+      lat: parseFloat(resource.lat),
+      lng: parseFloat(resource.lng),
+    };
+    const umkm = resource.umkm.trim() || "";
+
+    // upload image
+    noClose(true);
+    setLoading(true);
+    setStatusPost("Menambahkan Bahan Baku");
+    
+    const blob = await base64ToBlob(resource.image);
+    const publicUrl = await upload(blob);
+
+    // save resource
+    const resourceData = {
+      name,
+      description,
+      image: publicUrl,
+      location: {
+        lat: position.lat,
+        lng: position.lng,
+        name: location,
+      },
+      umkm,
     };
 
-    fetchData();
-  }, [fileLocationUpdated, fileLocation, description, name, statusPost, navigate, position.lat, position.lng, location, umkm]);
+    const res = await addResource(resourceData);
 
+    if (res) {
+      setStatusPost("Bahan Baku Ditambahkan");
+    } else {
+      setStatusPost("Bahan Baku Gagal Ditambahkan");
+    }
+
+    setTimeout(() => {
+      noClose(false);
+      setLoading(false);
+
+      if (move) {
+        refreshProduct();
+        move();
+      } else {
+        closeModal();
+      }
+    }, 1000);
+  };
 
   return (
     <div className="w-full p-4 ">
       {loading ? (
         <div className="loading-indicator">
           <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>{statusPost}</h1>
+          <h1 className="text-sm font-inter mt-1 text-center">{statusPost}</h1>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className='grid gap-4'>
+        <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="fileInput" className="block font-semibold mb-1">Gambar</label>
-            <div className="w-full h-72 border rounded-md  relative flex justify-center">
-              {selectedFile && (
-                <img
-                  src={URL.createObjectURL(selectedFile)}
-                  alt="Preview"
-                  className="w-fuli-full object-contain rounded-md"
-                />
-              )}
-
-              <label htmlFor="fileInput" className="w-full border flex justify-center items-center h-full absolute rounded-md cursor-pointer top-0 ">
-                {(!selectedFile) && <Icon active><MdPhotoCamera /></Icon>}
-              </label>
-            </div>
+            <label htmlFor="fileInput" className="block font-semibold mb-1">
+              Foto Bahan Baku
+            </label>
+            <CropImage
+              handleSetImage={handleFileChange}
+              error={resourceError.image}
+              handleCrop={handleCrop}
+            />
             <input
               type="file"
               id="fileInput"
-              onChange={handleFileChange}
+              name="image"
+              onChange={(e) => handleFileChange(e.target.files[0])}
               className="hidden"
               accept="image/*"
             />
-
           </div>
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="name" className="block font-semibold mb-1 ">Nama Bahan Baku</label>
+            <label htmlFor="name" className="block font-semibold mb-1 ">
+              Nama Bahan Baku
+            </label>
             <input
               type="text"
               id="name"
-              value={name}
-              onChange={handleNameChange}
+              name="name"
+              value={resource.name}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={resourceError.name} />
           </div>
 
-
-          <div className='mb-4 md:col-span-2'>
-            <label htmlFor="map" className="block font-semibold mb-1">Lokasi</label>
-            <MapPicker id="map" handleGet={handleMapClick} position={position} />
+          <div className="mb-4 md:col-span-2">
+            <label htmlFor="map" className="block font-semibold mb-1">
+              Asal Bahan Baku
+            </label>
+            <Map
+              position={{ lat: resource.lat, lng: resource.lng }}
+              onPositionChange={handlePositionChange}
+              handleGet={handleMapClick}
+            />
           </div>
-
-          <div className="mb-4 ">
-            <label htmlFor="lat" className="block font-semibold mb-1">Latitude</label>
+          <div className="mb-4">
+            <label htmlFor="lat" className="block font-semibold mb-1">
+              Latitude
+            </label>
             <input
               type="text"
               id="lat"
-              value={position.lat}
+              value={resource.lat}
               onChange={handleLatChange}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={resourceError.lat} />
           </div>
-
           <div className="mb-4">
-            <label htmlFor="lng" className="block font-semibold mb-1">Longitude</label>
+            <label htmlFor="lng" className="block font-semibold mb-1">
+              Longitude
+            </label>
             <input
               type="text"
               id="lng"
-              value={position.lng}
+              value={resource.lng}
               onChange={handleLngChange}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={resourceError.lng} />
           </div>
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="location" className="block font-semibold mb-1">Alamat</label>
+            <label htmlFor="location" className="block font-semibold mb-1">
+              Alamat
+            </label>
             <input
               type="text"
-              id="location"
-              value={location}
-              onChange={handleLocationChange}
+              id="address"
+              name="address"
+              value={resource.address}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
-          </div>
-          <div className="mb-4 md:col-span-2">
-            <label htmlFor="umkm" className="block font-semibold mb-1">UMKM (Optional)</label>
-            <input
-              type="text"
-              id="umkm"
-              value={umkm}
-              onChange={handleUmkmChange}
-              className="w-full border rounded-md py-2 px-3"
-              autoComplete="off"
-            />
+            <Alert message={resourceError.address} />
           </div>
 
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="description" className="block font-semibold mb-1">Deskripsi</label>
+            <label htmlFor="umkm" className="block font-semibold mb-1">
+              UMKM Penghasil Bahan Baku (Optional)
+            </label>
+            <input
+              type="text"
+              id="umkm"
+              name="umkm"
+              value={resource.umkm}
+              onChange={handleInput}
+              className="w-full border rounded-md py-2 px-3"
+              autoComplete="off"
+            />
+            <Alert message={resourceError.umkm} />
+          </div>
+
+          <div className="mb-4 md:col-span-2">
+            <label htmlFor="description" className="block font-semibold mb-1">
+              Deskripsi
+            </label>
             <textarea
               type="text"
               id="description"
-              value={description}
-              onChange={handleDescriptionChange}
+              name="description"
+              value={resource.description}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3 h-72"
               autoComplete="off"
               required
             />
+            <Alert message={resourceError.description} />
           </div>
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
-
-        </form>)}
+          </Button>
+        </form>
+      )}
     </div>
-
   );
 };
 

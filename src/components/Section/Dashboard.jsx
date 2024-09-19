@@ -1,13 +1,8 @@
-import { Link } from "react-router-dom";
-
-const Dashboard = ({ data }) => {
-  console.log(data)
+const Dashboard = ({ data, logoumkm }) => {
   return (
     <div className="w-full  py-6  rounded-md mt-2  sm:col-span-2 flex gap-4">
-
-
-      <img src={(data && data.image) ? data.image : 'https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg'}
-        className="rounded-full border-black border-2 h-24 w-24"
+      <img src={(data && data.image) ? data.image : logoumkm}
+        className="rounded-full h-24 w-24"
         alt="Image Prfile" />
       <div className="flex flex-col justify-between w-full">
         <div>
@@ -19,5 +14,5 @@ const Dashboard = ({ data }) => {
     </div >
   );
 };
-
+ 
 export default Dashboard;

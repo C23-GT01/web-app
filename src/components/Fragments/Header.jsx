@@ -1,7 +1,7 @@
 import Jumbotron from "../Elements/Jumbotron";
 import FLotbar from "../Elements/Floatbar";
 import QrScanner from "../Elements/QrScanner";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 import ModalLayout from "../Layouts/ModalLayouts";
 import Login from "../Section/Login";
 import Register from "../Section/Register";
@@ -11,20 +11,23 @@ import AddResource from "../Section/AddResource";
 import AddUmkm from "../Section/AddUmkm";
 
 const Header = ({ jumbotron, fbBg, home = false }) => {
+  const [isNoClose, setIsNoClose] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const openScan = () => {
-    setIsOpen(!isOpen);
-  }
-
   const jumbotronRef = useRef(null);
   const [showSearch, setShowSearch] = useState(true);
-  const [hideFloatbar, setHideFloatbar] = useState(false); // Initial state set to true
+  const [hideFloatbar, setHideFloatbar] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [contentModal, setContentModal] = useState("Account");
+
+  const openScan = () => {
+    setIsOpen(!isOpen);
+  };
 
   useEffect(() => {
     let timeoutId;
 
     const handleScroll = () => {
-      let jumbotronHeight
+      let jumbotronHeight;
       try {
         jumbotronHeight = jumbotronRef.current.offsetHeight;
       } catch {
@@ -33,10 +36,9 @@ const Header = ({ jumbotron, fbBg, home = false }) => {
 
       const scrollPosition = window.scrollY;
 
-      (scrollPosition > jumbotronHeight - 300)
+      scrollPosition > jumbotronHeight - 300
         ? setShowSearch(false)
         : setShowSearch(true);
-
 
       clearTimeout(timeoutId);
       if (scrollPosition > 200) {
@@ -47,29 +49,24 @@ const Header = ({ jumbotron, fbBg, home = false }) => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
       clearTimeout(timeoutId);
     };
   }, []);
 
-  // Login Modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [contentModal, setContentModal] = useState('Account');
-
   useEffect(() => {
-    const isLoggedIn = Cookies.get('refreshToken');
-    setContentModal(isLoggedIn ? 'Account' : 'Login');
+    const isLoggedIn = Cookies.get("refreshToken");
+    setContentModal(isLoggedIn ? "Account" : "Login");
   }, []);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    const isLoggedIn = Cookies.get('refreshToken');
-    setContentModal(isLoggedIn ? 'Account' : 'Login');
-  }
-
+    const isLoggedIn = Cookies.get("refreshToken");
+    setContentModal(isLoggedIn ? "Account" : "Login");
+  };
 
   const handleOpenLogin = () => {
     setIsModalOpen(true);
@@ -79,32 +76,49 @@ const Header = ({ jumbotron, fbBg, home = false }) => {
     setContentModal(val);
   };
 
-
   let modalContent = null;
 
-  if (contentModal === 'Login') {
-    modalContent = <Login move={handleContentModal} />;
-  } else if (contentModal === 'Register') {
-    modalContent = <Register move={() => handleContentModal('Login')} />;
-  } else if (contentModal === 'Account') {
-    modalContent = <Account move={handleContentModal} />;
-  } else if (contentModal === 'Tambah Bahan Baku') {
+  if (contentModal === "Login") {
+    modalContent = <Login move={handleContentModal} close={setIsNoClose} />;
+  } else if (contentModal === "Register") {
+    modalContent = <Register move={() => handleContentModal("Login")} />;
+  } else if (contentModal === "Account") {
+    modalContent = <Account move={handleContentModal} noClose={setIsNoClose} closeModal={setIsModalOpen} />;
+  } else if (contentModal === "Tambah Bahan Baku") {
     modalContent = <AddResource />;
-  } else if (contentModal === 'Registrasi UMKM') {
-    modalContent = <AddUmkm />;
+  } else if (contentModal === "Registrasi UMKM") {
+    modalContent = <AddUmkm move={handleContentModal} />;
   }
 
   return (
-    <header >
-      <FLotbar bg={fbBg} openScan={openScan} showSearch={showSearch} hidden={hideFloatbar} home={home} openLogin={handleOpenLogin} />
-      {jumbotron ? (<Jumbotron showSearch={showSearch} jumbotronRef={jumbotronRef} />) : null}
-      <QrScanner isActive={true} isOpen={isOpen} closeScan={openScan}></QrScanner>
-      {isModalOpen &&
-        <ModalLayout title={contentModal} onClose={handleCloseModal} >
+    <header>
+      <FLotbar
+        bg={fbBg}
+        openScan={openScan}
+        showSearch={showSearch}
+        hidden={hideFloatbar}
+        home={home}
+        openLogin={handleOpenLogin}
+      />
+      {jumbotron ? (
+        <Jumbotron showSearch={showSearch} jumbotronRef={jumbotronRef} />
+      ) : null}
+      <QrScanner
+        isActive={true}
+        isOpen={isOpen}
+        closeScan={openScan}
+      ></QrScanner>
+      {isModalOpen && (
+        <ModalLayout
+          title={contentModal}
+          onClose={handleCloseModal}
+          noClose={isNoClose}
+        >
           {modalContent}
-        </ModalLayout>}
+        </ModalLayout>
+      )}
     </header>
-  )
-}
+  );
+};
 
 export default Header;

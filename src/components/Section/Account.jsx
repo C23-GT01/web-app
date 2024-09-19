@@ -1,171 +1,174 @@
+import { MdDelete } from "react-icons/md";
 import { FaHandHoldingHeart } from "react-icons/fa";
 import { BsStack } from "react-icons/bs";
 import { MdStore } from "react-icons/md";
-import { AiFillShop } from "react-icons/ai";
-import { MdAddBusiness, MdBusiness } from "react-icons/md";
+import { MdAddBusiness } from "react-icons/md";
 import { MdLogout } from "react-icons/md";
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import Loading from '../Elements/Loading';
-import Cookies from 'js-cookie';
-import { Link, useNavigate } from 'react-router-dom';
-import isHasUmkm from '../../utils/isHasUmkm';
-import Dashboard from './Dashboard';
-import accessToken from '../../utils/accesToken';
-import ErrorPage from '../../pages/404';
-import Icon from '../Elements/Icon';
+import { useEffect, useState } from "react";
+import Loading from "../Elements/Loading";
+import { Link, useNavigate } from "react-router-dom";
+import Dashboard from "./Dashboard";
+import ErrorPage from "../../pages/404";
+import Icon from "../Elements/Icon";
+import { getUserProfile } from "../../services/user.service";
+import { logout } from "../../services/auth.service";
+import { deleteUmkm, getUmkmByOwner } from "../../services/umkm.service";
 
-
-const Account = ({ move }) => {
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const [hasUmkm, setHasUmkm] = useState('');
+const Account = ({ move, noClose, closeModal }) => {
+  const [umkm, setUmkm] = useState("")
+  const [hasUmkm, setHasUmkm] = useState("...");
   const [notLogin, setNotLogin] = useState(false);
   const [profile, setProfile] = useState(null);
-  const [statusLoading, setStatusLoading] = useState("Loading");
+  const [loading, setLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState("Load Data");
+  const navigate = useNavigate();
 
-
-  useEffect(() => {
-    setLoading(true)
-    const fetchData = async () => {
-      try {
-        const check = await isHasUmkm();
-
-        (check) ? setHasUmkm(true) : setHasUmkm(false)
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setHasUmkm(false)
-      } finally {
-        setLoading(false)
-      }
-
+  const handleSamePage = (url) => {
+    if (window.location.pathname === url) {
+      closeModal(false);
     }
-
-    fetchData();
-  }, []);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await accessToken();
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
+    setLoading(true);
 
-          const response = await axios.get(`https://c23-gt01-01.et.r.appspot.com/users/profile`, config);
-          setProfile(response.data.data.user);
-
-          setLoading(false);
-        } else {
-
-          setLoading(false)
-          setNotLogin(true)
-        }
-      } catch (error) {
-        console.log(error);
+    getUserProfile((data) => {
+      if (data) {
+        setProfile(data);
+      } else {
+        setNotLogin(true);
       }
-    };
+    });
 
-    fetchData();
-
+    getUmkmByOwner((data) => {
+      if (data) {
+        setUmkm(data)
+        setHasUmkm(true);
+      } else {
+        setHasUmkm(false);
+      }
+    });
+    setLoading(false);
   }, []);
 
-
-  if (notLogin) {
-    return (
-      <ErrorPage />
-    )
-  }
-
-
-
+  const handleDeleteUmkm = async () => {
+    setLoading(true);
+    setStatusLoading("Sedang Menghapus Umkm");
+    const res = await deleteUmkm();
+    console.log(res);
+    if (res) {
+      setStatusLoading("Umkm Berhasil");
+    } else {
+      setStatusLoading("Umkm Gagal Dihapus");
+    }
+    setTimeout(() => {
+      setLoading(false);
+      navigate("/");
+    }, 700);
+  };
 
   const handleLogout = async () => {
+    noClose(true);
     setLoading(true);
-    const refreshToken = Cookies.get('refreshToken');
-    Cookies.remove("refreshToken");
-    setStatusLoading('Sedang Logout');
-    try {
-      const response = await axios({
-        method: 'delete',
-        url: 'https://c23-gt01-01.et.r.appspot.com/authentications',
-        data: { refreshToken }
-      });
-
-      console.log(response.data);
-      setStatusLoading('Logout berhasil!');
-      alert('Logout berhasil!');
-      move('Login')
-
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Logout berhasil!');
-      move('Login')
-    } finally {
-      setStatusLoading('Loading');
-      setLoading(false); // Mengubah state loading menjadi false setelah proses selesai, baik berhasil maupun gagal
-    }
-
+    setStatusLoading("Sedang Logout");
+    logout((res) => {
+      if (res) {
+        setStatusLoading("Logout Berhasil");
+      } else {
+        setStatusLoading("Anda Telah Logout");
+      }
+      setTimeout(() => {
+        noClose(false);
+        setLoading(false);
+        move("Login");
+        navigate("/");
+      }, 700);
+    });
   };
+
+  if (notLogin) {
+    return <ErrorPage />;
+  }
+
+  //
 
   return (
     <div className="w-full p-4 ">
-      {loading ? (
-        <div className="loading-indicator">
-          <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>{statusLoading}</h1>
-        </div>
-      ) : (
-        <div className='grid sm:grid-cols-2 gap-4 -mt-4'>
-          {
-
-            profile !== null && hasUmkm !== '' && <Dashboard data={profile} umkm={hasUmkm} />
-          }
-
-          {hasUmkm ?
+      {!loading && profile && hasUmkm !== "..." ? (
+        <div className="grid sm:grid-cols-2 gap-4 -mt-4">
+          <Dashboard data={profile} umkm={hasUmkm} logoumkm={umkm.logo} />
+          {hasUmkm ? (
             <>
-              <Link to={'/umkm/profile'} className=" h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around ">
+              <Link
+                to={"/umkm/profile"}
+                onClick={() => handleSamePage("/umkm/profile")}
+                className=" h-32 font-inter outline outline-slate-300 py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around "
+              >
                 <Icon active>
                   <MdStore />
                 </Icon>
                 Manajemen UMKM
               </Link>
-              <Link to={'/umkm/resource'} className=" h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around ">
+              <Link
+                to={"/umkm/resource"}
+                className=" h-32 font-inter outline outline-slate-300 py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around "
+              >
                 <Icon active>
                   <BsStack />
                 </Icon>
                 Manajemen Bahan Baku
               </Link>
-              <Link to={'/umkm/impact'} className=" h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around ">
+              <Link
+                to={"/umkm/impact"}
+                className=" h-32 font-inter outline outline-slate-300 py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around "
+              >
                 <Icon active>
                   <FaHandHoldingHeart />
                 </Icon>
                 Manajemen Impact
               </Link>
+
+              <div
+                className="h-32 font-inter outline outline-red-500 py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around "
+                onClick={handleDeleteUmkm}
+              >
+                <Icon active>
+                  <MdDelete />
+                </Icon>
+                Hapus UMKM
+              </div>
             </>
-            :
-            <div onClick={() => move('Registrasi UMKM')} className=" h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around ">
+          ) : (
+            <div
+              onClick={() => move("Registrasi UMKM")}
+              className=" h-32 font-inter outline outline-slate-300 py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around "
+            >
               <Icon active>
                 <MdAddBusiness />
               </Icon>
-              Buat UMKM
+              Daftarkan UMKM
             </div>
-          }
+          )}
 
-          <div className="h-32 font-inter outline py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around " onClick={handleLogout}>
+          <div
+            className="h-32 font-inter outline outline-slate-300 py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around "
+            onClick={handleLogout}
+          >
             <Icon active>
               <MdLogout />
             </Icon>
             Logout
           </div>
         </div>
+      ) : (
+        <div className="loading-indicator">
+          <Loading />
+          <h1 className="text-sm font-inter mt-1 text-center">
+            {statusLoading}
+          </h1>
+        </div>
       )}
-
     </div>
-
   );
 };
 

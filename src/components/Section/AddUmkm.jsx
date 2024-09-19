@@ -1,293 +1,428 @@
-import { MdPhotoCamera } from "react-icons/md";
-import React, { useState, useEffect } from 'react';
-import MapPicker from '../Elements/MapPicker';
-import Icon from '../Elements/Icon';
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
+/* eslint-disable no-case-declarations */
+import React, { useEffect, useState } from "react";
 import Loading from "../Elements/Loading";
-import { useNavigate } from "react-router-dom";
+import CropImage from "./CropImage";
+import Map from "../Elements/MapPicker";
+import { upload } from "../../services/upload.service";
+import base64ToBlob from "../../utils/toBlob";
+import { addUmkm } from "../../services/umkm.service";
+import Button from "../Elements/Button";
+import Alert from "../Elements/Alert";
 
 const AddUmkm = ({ move }) => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState('Mulai Mengupload');
-  const [selectedFile, setSelectedFile] = useState(false);
-  const [name, setName] = useState('');
-  const [employe, setEmploye] = useState(0);
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
-  const [position, setPosition] = useState({ lat: -6.2088, lng: 106.8456 });
-  const [fileLocation, setFileLocation] = useState('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
-  const [fileLocationUpdated, setFileLocationUpdated] = useState(false);
+  const [umkm, setUmkm] = useState({
+    name: "",
+    logo: "",
+    description: "",
+    lat: -6.2088,
+    lng: 106.8456,
+    address: "",
+    employe: 0,
+    email: "",
+    noHP: "",
+    isWA: false,
+    noWA: "",
+  });
+  
+  //Input
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleNameChange = (event) => {
-    setName(event.target.value);
+  const handleInput = (event) => {
+    const { name, value, type, checked } = event.target;
+    setUmkm((prevUmkm) => ({
+      ...prevUmkm,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
+  const handleCrop = (value) => {
+    setIsEditing(value);
+  };
+
+  const handleFileChange = (file) => {
+    setUmkm((prevUmkm) => ({
+      ...prevUmkm,
+      logo: file,
+    }));
+  };
 
   const handleLatChange = (event) => {
     const lat = parseFloat(event.target.value);
-    setPosition({
-      ...position,
-      lat: isNaN(lat) ? 0 : lat, // Menetapkan nilai 0 jika input tidak valid atau kosong
-    });
+    setUmkm((prevUmkm) => ({
+      ...prevUmkm,
+      lat: isNaN(lat) ? 0 : lat,
+    }));
   };
 
   const handleLngChange = (event) => {
     const lng = parseFloat(event.target.value);
-    setPosition({
-      ...position,
-      lng: isNaN(lng) ? 0 : lng, // Menetapkan nilai 0 jika input tidak valid atau kosong
-    });
-  };
-
-
-  const handleLocationChange = (event) => {
-    setLocation(event.target.value);
-  };
-  const handleEmployeChange = (event) => {
-    setEmploye(event.target.value);
-  };
-
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
+    setUmkm((prevUmkm) => ({
+      ...prevUmkm,
+      lng: isNaN(lng) ? 0 : lng,
+    }));
   };
 
   const handleMapClick = (event) => {
-    setPosition({
+    setUmkm((prevUmkm) => ({
+      ...prevUmkm,
       lat: event.latLng.lat(),
       lng: event.latLng.lng(),
-    });
+    }));
   };
 
-
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
+  const handlePositionChange = (newPosition, newAddress) => {
+    setUmkm((prevUmkm) => ({
+      ...prevUmkm,
+      lat: newPosition.lat,
+      lng: newPosition.lng,
+      address: newAddress,
+    }));
   };
 
+  // Validasi
+  const [umkmError, setUmkmError] = useState({
+    name: "",
+    logo: "",
+    description: "",
+    lat: "",
+    lng: "",
+    address: "",
+    employe: "",
+    email: "",
+    noHP: "",
+    noWA: "",
+  });
 
 
-  const handleSubmit = async (event) => {
-    setLoading(true);
-    event.preventDefault();
+  const validateField = (name, value) => {
+    if (name === "noWA" && umkm.isWA) {
+      return "";
+    }
 
-    const file = selectedFile;
+    if (typeof value === "string" && value.trim() === "") {
+      return " ";
+    }
 
-    try {
-
-
-      if (selectedFile) {
-        setStatusPost('Sedang Mengupload Gambar')
-        const formData = new FormData();
-        formData.append('data', file);
-
-        const token = await accessToken();
-
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-
-          const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
-          console.log('Server response:', response.data.data.fileLocation);
-          setFileLocation(response.data.data.fileLocation);
-          setFileLocationUpdated(true);
-
-        } else {
-          console.log('No access token available.');
-        }
-      } else {
-        setFileLocationUpdated(true);
-      }
-
-
-
-    } catch (error) {
-      console.error('Error uploading image:', error);
-
-    } finally {
-      setStatusPost('Upload Gambar Selesai')
-
+    switch (name) {
+      case "name":
+        return value.length >= 3 ? "" : "Nama minimal 3 karakter";
+      case "email":
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(value) ? "" : "Email tidak valid";
+      case "noHP":
+        const phonePattern = /^[0-9]{10,13}$/;
+        return phonePattern.test(value) ? "" : "Nomor telepon tidak valid";
+      case "noWA":
+        const waPattern = /^[0-9]{10,13}$/;
+        return umkm.isWA || (value && waPattern.test(value))
+          ? ""
+          : "Nomor Whatsapp tidak valid";
+      case "employe":
+        return value >= 0 ? "" : "Jumlah karyawan tidak valid";
+      case "description":
+        return value.length >= 10 ? "" : "Deskripsi minimal 10 karakter";
+      case "lat":
+        const latPattern = /^-?\d+(\.\d+)?$/;
+        return latPattern.test(value) ? "" : "Latitude tidak valid";
+      case "lng":
+        const lngPattern = /^-?\d+(\.\d+)?$/;
+        return lngPattern.test(value) ? "" : "Longitude tidak valid";
+      case "address":
+        return value.length >= 5 ? "" : "Alamat minimal 5 karakter";
+      case "logo":
+        return isEditing ? "Selesaikan Cropping" : "";
+      default:
+        return "";
     }
   };
 
-
   useEffect(() => {
-    setStatusPost('Sedang Mengupload Data')
-    const fetchData = async () => {
-      if (fileLocationUpdated) {
+    const errors = {};
+    Object.keys(umkm).forEach((key) => {
+      errors[key] = validateField(key, umkm[key], umkm);
+    });
+    setUmkmError(errors);
 
-        try {
-          setFileLocationUpdated(false);
-          setStatusPost('Sedang Mengupload Data')
-          let imageLocation = fileLocation; // Ambil lokasi gambar dari respons upload
+    const hasErrors = Object.values(errors).some((error) => error !== "");
+    setIsSubmitDisabled(hasErrors);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [umkm, isEditing]);
 
-          const token = await accessToken();
 
-          if (token) {
-            const config = {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            };
-            const umkmData = {
-              name: name,
-              logo: imageLocation,
-              location: {
-                lat: position.lat,
-                lng: position.lng,
-                name: location
-              },
-              employe: employe,
-              description: description
-            };
+  //Submit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
 
-            const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/umkm', umkmData, config);
-            setStatusPost('Selesai')
-            alert(response.data.message);
-          } else {
-            console.log('No access token available.');
-          }
-        } catch (error) {
-          console.error('Error posting umkm:', error);
-        } finally {
-          setStatusPost('Mulai Mengupload')
-          setLoading(false)
-          navigate(0);
-        }
-      }
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // Triming
+    const name = umkm.name.trim();
+    const location = umkm.address.trim();
+    const employe = parseInt(umkm.employe, 10);
+    const description = umkm.description.trim();
+    const position = {
+      lat: parseFloat(umkm.lat),
+      lng: parseFloat(umkm.lng),
+    };
+    const contact = {
+      email: umkm.email.trim(),
+      phone: {
+        phoneNumber: umkm.noHP.trim(),
+        isWhatsApp: umkm.isWA,
+        waNumber: umkm.isWA ? "" : umkm.noWA.trim(),
+      },
     };
 
-    fetchData();
-  }, [fileLocationUpdated, fileLocation, description, name, statusPost, navigate, position, location, employe]);
-
+    // upload image
+    setLoading(true);
+    setStatusPost("Sedang Melakukan Registrasi UMKM");
+    const blob = await base64ToBlob(umkm.logo);
+    const publicUrl = await upload(blob);
+    
+    const umkmData = {
+      name,
+      logo: publicUrl,
+      location: {
+        lat: position.lat,
+        lng: position.lng,
+        name: location,
+      },
+      employe,
+      description,
+      contact,
+    };
+    const res = await addUmkm(umkmData);
+    if (res) {
+      setStatusPost("Registrasi UMKM berhasil");
+    } else {
+      setStatusPost("Registrasi UMKM gagal");
+    }
+    setTimeout(() => {
+      setLoading(false);
+      move("Account");
+    }, 1500);
+  };
 
   return (
-    <div className="w-full p-4 ">
+    <div className="w-full p-4">
       {loading ? (
         <div className="loading-indicator">
           <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>{statusPost}</h1>
+          <h1 className="text-sm font-inter mt-1 text-center">{statusPost}</h1>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className='grid gap-4'>
+        <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="fileInput" className="block font-semibold mb-1">Logo</label>
-            <div className="w-full h-72 border rounded-md  relative flex justify-center">
-              {selectedFile && (
-                <img
-                  src={URL.createObjectURL(selectedFile)}
-                  alt="Preview"
-                  className="w-fuli-full object-contain rounded-md"
-                />
-              )}
-
-              <label htmlFor="fileInput" className="w-full border flex justify-center items-center h-full absolute rounded-md cursor-pointer top-0 ">
-                {(!selectedFile) && <Icon active><MdPhotoCamera /></Icon>}
-              </label>
-            </div>
-            <input
-              type="file"
-              id="fileInput"
-              onChange={handleFileChange}
-              className="hidden"
-              accept="image/*"
-            />
-
-          </div>
-          <div className="mb-4 md:col-span-2">
-            <label htmlFor="name" className="block font-semibold mb-1 ">Nama UMKM</label>
+            <label htmlFor="name" className="block font-semibold mb-1">
+              Nama UMKM
+            </label>
             <input
               type="text"
               id="name"
-              value={name}
-              onChange={handleNameChange}
+              name="name"
+              value={umkm.name}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={umkmError.name} />
           </div>
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="employe" className="block font-semibold mb-1 ">Jumlah karyawan</label>
+            <label htmlFor="fileInput" className="block font-semibold mb-1">
+              Logo
+            </label>
+            <CropImage
+              handleSetImage={handleFileChange}
+              error={umkmError.logo}
+              handleCrop={handleCrop}
+            />
             <input
-              type="number"
-              min = '0'
-              id="employe"
-              value={employe}
-              onChange={handleEmployeChange}
-              className="w-full border rounded-md py-2 px-3"
-              autoComplete="off"
-              required
+              type="file"
+              id="fileInput"
+              name="logo"
+              onChange={(e) => handleFileChange(e.target.files[0])}
+              className="hidden"
+              accept="image/*"
             />
           </div>
+
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="description" className="block font-semibold mb-1">Deskripsi</label>
+            <label htmlFor="description" className="block font-semibold mb-1">
+              Deskripsi
+            </label>
             <textarea
               type="text"
               id="description"
-              value={description}
-              onChange={handleDescriptionChange}
+              name="description"
+              value={umkm.description}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3 h-36"
               autoComplete="off"
               required
             />
+            <Alert message={umkmError.description} />
           </div>
-
-          <div className='mb-4 md:col-span-2'>
-            <label htmlFor="map" className="block font-semibold mb-1">Lokasi</label>
-            <MapPicker id="map" handleGet={handleMapClick} position={position} />
+          <div className="mb-4 md:col-span-2">
+            <label htmlFor="map" className="block font-semibold mb-1">
+              Lokasi
+            </label>
+            <Map
+              position={{ lat: umkm.lat, lng: umkm.lng }}
+              onPositionChange={handlePositionChange}
+              handleGet={handleMapClick}
+            />
           </div>
-
-          <div className="mb-4 ">
-            <label htmlFor="lat" className="block font-semibold mb-1">Latitude</label>
+          <div className="mb-4">
+            <label htmlFor="lat" className="block font-semibold mb-1">
+              Latitude
+            </label>
             <input
               type="text"
               id="lat"
-              value={position.lat}
+              value={umkm.lat}
               onChange={handleLatChange}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={umkmError.lat} />
           </div>
-
           <div className="mb-4">
-            <label htmlFor="lng" className="block font-semibold mb-1">Longitude</label>
+            <label htmlFor="lng" className="block font-semibold mb-1">
+              Longitude
+            </label>
             <input
               type="text"
               id="lng"
-              value={position.lng}
+              value={umkm.lng}
               onChange={handleLngChange}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={umkmError.lng} />
           </div>
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="location" className="block font-semibold mb-1">Alamat</label>
+            <label htmlFor="location" className="block font-semibold mb-1">
+              Alamat
+            </label>
             <input
               type="text"
-              id="location"
-              value={location}
-              onChange={handleLocationChange}
+              id="address"
+              name="address"
+              value={umkm.address}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={umkmError.address} />
           </div>
+          <div className="mb-4 md:col-span-2">
+            <label htmlFor="employe" className="block font-semibold mb-1">
+              Jumlah karyawan
+            </label>
+            <input
+              type="number"
+              min="0"
+              id="employe"
+              name="employe"
+              value={umkm.employe}
+              onChange={handleInput}
+              className="w-full border rounded-md py-2 px-3"
+              autoComplete="off"
+              required
+            />
+            <Alert message={umkmError.employe} />
+          </div>
+          <div className="mb-4 md:col-span-2">
+            <label
+              htmlFor="email"
+              className="block font-semibold mb-1 text-left "
+            >
+              Email UMKM
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={umkm.email}
+              onChange={handleInput}
+              className="w-full border rounded-md py-2 px-3"
+              autoComplete="off"
+              required
+            />
+            <Alert message={umkmError.email} />
+          </div>
+          <div className="mb-4 md:col-span-2">
+            <label
+              htmlFor="noHP"
+              className="block font-semibold mb-1 text-left  "
+            >
+              Nomor Telepon
+            </label>
 
-
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+            <input
+              type="text"
+              id="noHP"
+              name="noHP"
+              value={umkm.noHP}
+              onChange={handleInput}
+              className="w-full border rounded-md py-2 px-3"
+              autoComplete="off"
+              required
+            />
+            <div className="flex justify-between items-start">
+              <div className="flex items-center pt-2">
+                <input
+                  type="checkbox"
+                  id="isWA"
+                  name="isWA"
+                  value={umkm.isWA}
+                  checked={umkm.isWA}
+                  onChange={handleInput}
+                />
+                <label htmlFor="isWA" className="ml-2 w-full">
+                  Ini nomor Whatsapp
+                </label>
+              </div>
+              <Alert message={umkmError.noHP} />
+            </div>
+          </div>
+          {!umkm.isWA && (
+            <div className="mb-4 md:col-span-2">
+              <label
+                htmlFor="noWA"
+                className="block font-semibold mb-1 text-left  "
+              >
+                Whatsapp
+              </label>
+              <input
+                type="text"
+                id="noWA"
+                name="noWA"
+                value={umkm.noWA}
+                onChange={handleInput}
+                className="w-full border rounded-md py-2 px-3"
+                autoComplete="off"
+                required
+              />
+              <Alert message={umkmError.noWA} />
+            </div>
+          )}
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
-
-        </form>)}
+          </Button>
+        </form>
+      )}
     </div>
-
   );
 };
 

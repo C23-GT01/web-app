@@ -4,25 +4,22 @@ import Products from "../components/Section/Products";
 import Umkm from "../components/Section/Umkm";
 import React, { useState, useEffect } from "react";
 import Loading from "../components/Elements/Loading";
-import { getProducts } from "../services/product.service";
-import { getUmkm } from "../services/umkm.service";
+import { getAllProductsByPage } from "../services/product.service";
+import { getAllUmkm } from "../services/umkm.service";
 
 const HomePage = () => {
   const [products, setProducts] = useState(null);
   const [umkm, setUmkm] = useState(null);
 
   useEffect(() => {
-    getProducts((data) => {
-      setTimeout(() => {
-        setProducts(data);
-      }, 700);
-    });
-  }, []);
-
-  useEffect(() => {
-    getUmkm((data) => {
-      setUmkm(data);
-    });
+    setTimeout(() => {
+      getAllProductsByPage("0", (data) => {
+        setProducts(data.products);
+      });
+      getAllUmkm((data) => {
+        setUmkm(data);
+      });
+    }, 10);
   }, []);
 
   return (
@@ -30,7 +27,7 @@ const HomePage = () => {
       {products && umkm ? (
         <HomeLayout jumbotron={true} nodiv title="Home" home>
           <FIlter />
-          <Products data={products} />
+          <Products data={products} name="Produk" preview />
           <Umkm umkm={umkm} />
         </HomeLayout>
       ) : (

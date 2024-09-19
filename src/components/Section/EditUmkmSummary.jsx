@@ -1,251 +1,235 @@
-import { MdPhotoCamera } from "react-icons/md";
-import React, { useState } from 'react';
-import Icon from '../Elements/Icon';
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
+//252
+import React, { useState } from "react";
 import Loading from "../Elements/Loading";
-import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
+import Button from "../Elements/Button";
+import CropImage from "./CropImage";
+import Alert from "../Elements/Alert";
+import base64ToBlob from "../../utils/toBlob";
+import { upload } from "../../services/upload.service";
+import { editUmkm } from "../../services/umkm.service";
 
-const EditUmkmSummary = ({ move }) => {
-  const { id } = useParams();
-  const navigate = useNavigate()
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState('Mulai Mengupload');
-  const [selectedFile, setSelectedFile] = useState(false);
-  const [description, setDescription] = useState('');
-  const [nameUmkm, setNameUmkm] = useState('');
-  const [fileLocation, setFileLocation] = useState('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
-  const [fileLocationUpdated, setFileLocationUpdated] = useState(false);
-  const [umkm, setUmkm] = useState(false);
+const EditUmkmSummary = ({ data, refresh, closeModal, noClose }) => {
+  const [umkmDetail, setUmkmDetail] = useState({
+    name: data.name,
+    description: data.description,
+    logo: data.logo,
+    employe: data.employe,
+  });
+  const [oldUmkmDetail] = useState({
+    name: data.name,
+    description: data.description,
+    logo: data.logo,
+    employe: data.employe,
+  });
 
-
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
+  // Input
+  const [isEditing, setIsEditing] = useState(false);
+  const handleInput = (event) => {
+    const { name, value, type, checked } = event.target;
+    setUmkmDetail((prevUmkmDetail) => ({
+      ...prevUmkmDetail,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
-  const handleNameUmkmChange = (event) => {
-    setNameUmkm(event.target.value);
+
+  // Input Image
+  const handleCrop = (value) => {
+    setIsEditing(value);
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
+  const handleFileChange = (file) => {
+    setUmkmDetail((prevUmkmsetUmkmDetail) => ({
+      ...prevUmkmsetUmkmDetail,
+      logo: file,
+    }));
+  };
 
-    // Check if a file was selected before updating fileLocation
-    if (file) {
-      setFileLocation(URL.createObjectURL(file));
-    } else {
-      setFileLocation('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
+  // Validasi
+  const [umkmDetailError, setUmkmDetailError] = useState({
+    logo: "",
+    name: "",
+    description: "",
+    employe: "",
+  });
+
+  const validateField = (name, value) => {
+    if (typeof value === "string" && value.trim() === "") {
+      return " ";
+    }
+
+    switch (name) {
+      case "name":
+        return value.length >= 3 ? "" : "Minimal 3 karakter";
+      case "logo":
+        return isEditing ? "Selesaikan Cropping" : "";
+      case "employe":
+        return value >= 0 ? "" : "Jumlah karyawan tidak valid";
+      case "description":
+        return value.length >= 10 ? "" : "Minimal 10 karakter";
+      default:
+        return "";
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await accessToken();
+    const errors = {};
+    Object.keys(umkmDetail).forEach((key) => {
+      errors[key] = validateField(key, umkmDetail[key], umkmDetail);
+    });
+    setUmkmDetailError(errors);
 
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
+    const hasErrors = Object.values(errors).some((error) => error !== "");
+    setIsSubmitDisabled(hasErrors);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [umkmDetail, isEditing]);
 
-          const response = await axios.get(`https://c23-gt01-01.et.r.appspot.com/umkm/profile`, config);
-          setUmkm(response.data.data.umkm);
-          if (response.data.data.umkm.history !== null) {
-            setDescription(response.data.data.umkm.description);
-            setFileLocation(response.data.data.umkm.logo);
-            setNameUmkm(response.data.data.umkm.name);
-          }
-        } else {
-          console.log('No access token available.');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  // Submit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
-    fetchData();
-  }, []);
+  useEffect(() => {
+    if (JSON.stringify(umkmDetail) === JSON.stringify(oldUmkmDetail)) {
+      setIsSubmitDisabled(true);
+    }
+  }, [umkmDetail, oldUmkmDetail]);
 
-
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
   const handleSubmit = async (event) => {
-    setLoading(true);
     event.preventDefault();
 
-    const file = selectedFile;
+    //Trimming
+    const name = umkmDetail.name.trim();
+    const description = umkmDetail.description.trim();
+    const employe = parseInt(umkmDetail.employe, 10);
 
-    try {
+    //Upload Image
+    setLoading(true);
+    setStatusPost("Memperbarui Sejarah UMKM");
 
-      if (selectedFile) {
-        setStatusPost('Sedang Mengupload Gambar')
-        const formData = new FormData();
-        formData.append('data', file);
-
-        const token = await accessToken();
-
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-
-          const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
-          console.log('Server response:', response.data.data.fileLocation);
-          setFileLocation(response.data.data.fileLocation);
-          setFileLocationUpdated(true);
-
-        } else {
-          console.log('No access token available.');
-        }
-      } else {
-        setFileLocationUpdated(true);
-      }
-
-
-    } catch (error) {
-      console.error('Error uploading image:', error);
-
-    } finally {
-      setStatusPost('Upload Gambar Selesai')
-      setStatusPost('Sedang Mengupload Data')
-
-
+    let publicUrl;
+    if (umkmDetail.logo !== oldUmkmDetail.logo) {
+      setStatusPost("Memproses Gambar...");
+      const blob = await base64ToBlob(umkmDetail.logo);
+      setStatusPost("Mengunggah Gambar...");
+      publicUrl = await upload(blob);
+    } else {
+      publicUrl = oldUmkmDetail.logo;
     }
-  };
-  useEffect(() => {
-    setStatusPost('Sedang Mengupload Data')
-    const fetchData = async () => {
-      if (fileLocationUpdated) {
-        setFileLocationUpdated(false);
-        try {
-          let imageLocation = fileLocation;
 
-          const token = await accessToken();
-
-          if (token) {
-            const config = {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            };
-
-            const historyData = {
-              image: imageLocation,
-              text: description,
-            };
-
-            const updatedUmkmData = {
-              image: umkm.image,
-              logo: imageLocation,
-              history: historyData,
-              description: description,
-              employe: umkm.employe,
-              impact: umkm.impact,
-              name: nameUmkm,
-              location: umkm.location,
-              contact: umkm.contact,
-            };
-
-            const response = await axios.put(`https://c23-gt01-01.et.r.appspot.com/umkm`, updatedUmkmData, config);
-            alert(response.data.message);
-
-            setLoading(false);
-            navigate(0);
-          } else {
-            console.log("No access token available.");
-          }
-
-        } catch (error) {
-          console.error('Error posting resource:', error);
-        } finally {
-          setStatusPost('Selesai')
-          setLoading(false)
-          // navigate(0);
-        }
-      }
+    // Save Data
+    const umkmData = {
+      name,
+      description,
+      logo: publicUrl,
+      employe,
     };
-
-    fetchData();
-  }, [fileLocationUpdated, fileLocation, description, statusPost, navigate, id, umkm, nameUmkm]);
-
+    setStatusPost("Menyimpan Perubahan");
+    const res = await editUmkm(umkmData);
+    if (res) {
+      setStatusPost("Detail Umkm Berhasil Diperbarui");
+      refresh();
+    } else {
+      setStatusPost("Detail Umkm Gagal Diperbarui");
+    }
+    setTimeout(() => {
+      setLoading(false);
+      noClose(false);
+      closeModal();
+    }, 1500);
+  };
 
   return (
     <div className="w-full p-4 ">
       {loading ? (
         <div className="loading-indicator">
           <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>{statusPost}</h1>
+          <h1 className="text-sm font-inter mt-1 text-center">{statusPost}</h1>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className='grid gap-4'>
+        <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="fileInput" className="block font-semibold mb-1">Gambar</label>
-            <div className="w-full h-72 border rounded-md relative flex justify-center">
-              {selectedFile ? (
-                <img
-                  src={URL.createObjectURL(selectedFile)}
-                  alt="Preview"
-                  className="w-full h-full object-contain rounded-md"
-                />
-              ) : (
-                <img
-                  src={fileLocation}
-                  alt="Preview"
-                  className="w-full h-full object-contain rounded-md"
-                />
-              )}
-              <label htmlFor="fileInput" className="w-full border flex justify-center items-center h-full absolute rounded-md cursor-pointer top-0 ">
-                {/* {(!selectedFile) && <Icon active><MdPhotoCamera /></Icon>} */}
-              </label>
-            </div>
+            <label htmlFor="fileInput" className="block font-semibold mb-1">
+              Gambar
+            </label>
+            <CropImage
+              handleSetImage={handleFileChange}
+              error={umkmDetailError.logo}
+              handleCrop={handleCrop}
+              prevImage={oldUmkmDetail.logo}
+            />
             <input
               type="file"
               id="fileInput"
-              onChange={handleFileChange}
+              name="logo"
+              onChange={(e) => handleFileChange(e.target.files[0])}
               className="hidden"
               accept="image/*"
             />
-
           </div>
 
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="nameUmkm" className="block font-semibold mb-1 text-left ">Nama UMKM</label>
+            <label
+              htmlFor="nameUmkm"
+              className="block font-semibold mb-1 text-left "
+            >
+              Nama UMKM
+            </label>
             <input
               type="text"
               id="nameUmkm"
-              value={nameUmkm}
-              onChange={handleNameUmkmChange}
+              name="name"
+              value={umkmDetail.name}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={umkmDetailError.name} />
           </div>
 
-
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="description" className="block font-semibold mb-1">Deskripsi</label>
+            <label htmlFor="description" className="block font-semibold mb-1">
+              Deskripsi
+            </label>
             <textarea
               type="text"
               id="description"
-              value={description}
-              onChange={handleDescriptionChange}
+              name="description"
+              value={umkmDetail.description}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3 h-48"
               autoComplete="off"
               required
             />
+            <Alert message={umkmDetailError.description} />
           </div>
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+          <div className="mb-4 md:col-span-2">
+            <label htmlFor="employe" className="block font-semibold mb-1">
+              Jumlah Karyawan (Opsional)
+            </label>
+            <input
+              type="number"
+              id="employe"
+              name="employe"
+              value={umkmDetail.employe}
+              onChange={handleInput}
+              className="w-full border rounded-md py-2 px-3"
+              autoComplete="off"
+              min={0}
+            />
+            <Alert message={umkmDetailError.employe} />
+          </div>
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
-
-          <h2 onClick={() => move('Edit Banner')} className='text-sm font-inter mt-1 text-center text-[#aa7b56] hover:text-[#604732] md:col-span-2'>Edit Banner</h2>
-
-        </form>)}
+          </Button>
+        </form>
+      )}
     </div>
-
   );
 };
 

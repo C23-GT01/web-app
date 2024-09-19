@@ -7,7 +7,7 @@ const Brand = () => {
       <Icon>
         <img src={logo} alt="" />
       </Icon>
-      <h1 className='text-h1 font-bold font-inter hidden sm:inline'>Trackmate</h1>
+      <h1 className='text-h1 text-[#dc0000] font-bold font-inter hidden sm:inline'>SIDUKAS</h1>
     </div>
   );
 };

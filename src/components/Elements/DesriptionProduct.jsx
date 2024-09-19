@@ -1,8 +1,6 @@
-import { Children } from "react";
-
 const DescriptionProduct = ({ children }) => {
   return (
-    <p className="font-inter text-justify">
+    <p className="font-inter text-justify whitespace-pre-line">
       {children}
     </p>
   );

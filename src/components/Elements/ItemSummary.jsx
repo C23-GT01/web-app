@@ -2,7 +2,6 @@ import { MdShareLocation } from "react-icons/md";
 import { MdEmojiPeople } from "react-icons/md"; 
 import { ImLeaf } from "react-icons/im"; 
 import { IoMdTrendingUp } from "react-icons/io"; 
-import { BiTrendingUp } from "react-icons/bi"; 
 import { MdRecycling } from "react-icons/md"; 
 import { MdWaterDrop } from "react-icons/md"; 
 import { IoMdTrash } from "react-icons/io"; 

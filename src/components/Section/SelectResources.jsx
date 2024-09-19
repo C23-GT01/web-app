@@ -1,53 +1,36 @@
 import React, { useState, useEffect } from "react";
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
 import Loading from "../Elements/Loading";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { getResourceBySlugUmkm } from "../../services/resource.service";
+import { editProduct } from "../../services/product.service";
+import Button from "../Elements/Button";
 
-const SelectResource = ({ move }) => {
+const SelectResource = ({
+  product,
+  move,
+  refreshProduct,
+  closeModal,
+  noClose,
+}) => {
   const { id } = useParams();
   const [resources, setResources] = useState([]);
-  const [product, setProduct] = useState(false);
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
-  const [selectedResources, setSelectedResources] = useState([]);
+  const [selectedResources, setSelectedResources] = useState(
+    product.resource.map((resource) => resource.id)
+  );
+  const [oldResources, setOldResources] = useState(
+    product.resource.map((resource) => resource.id)
+  );
 
   useEffect(() => {
-    axios.get(`https://c23-gt01-01.et.r.appspot.com/products/${id}`)
-      .then(function (response) {
-        setProduct(response.data.data.product);
-        console.log('product', response.data.data)
-        setSelectedResources(
-          response.data.data.product.resources.map((resource) => resource.id) || []
-        );
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }, [id, statusPost]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await accessToken();
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-          const response = await axios.get(`https://c23-gt01-01.et.r.appspot.com/resources`, config);
-
-          setResources(response.data.data.resources || []);
-        }
-      } catch (error) {
-        console.log(error);
+    setLoading(true);
+    setStatusPost("Memuat Bahan Baku");
+    getResourceBySlugUmkm(product.umkm.slug, (data) => {
+      if (data) {
+        setResources(data);
+        setLoading(false);
       }
-    };
-
-    fetchData();
-  }, [statusPost]);
+    });
+  }, [product]);
 
   const handleCheckboxChange = (resourceId) => {
     if (selectedResources.includes(resourceId)) {
@@ -57,42 +40,45 @@ const SelectResource = ({ move }) => {
     }
   };
 
-  const handleSubmit = async (event) => {
-    setLoading(true);
-    setStatusPost('Sedang Mengubah Data');
-    event.preventDefault();
-    try {
-      const token = await accessToken();
-      if (token) {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-
-        const updatedProductData = {
-          image: product.image,
-          price: product.price,
-          description: product.description,
-          name: product.name,
-          resources: selectedResources,
-          production: product.production,
-          impact: product.impact.map(item => item.id),
-          contribution: product.contribution,
-          category: product.category,
-        };
-
-        const response = await axios.put(`https://c23-gt01-01.et.r.appspot.com/products/${id}`, updatedProductData, config);
-        alert(response.data.message);
-
-        setLoading(false);
-        navigate(0);
-      } else {
-        console.log("No access token available.");
-      }
-    } catch (error) {
-      console.error("Error updating product:", error);
+  // Submit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  useEffect(() => {
+    if (JSON.stringify(selectedResources) !== JSON.stringify(oldResources)) {
+      setIsSubmitDisabled(false);
+    } else {
+      setIsSubmitDisabled(true);
     }
+  }, [oldResources, selectedResources]);
+
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const data = {
+      resource: {
+        deleteMany: {},
+        create: selectedResources.map((resourceId) => ({ resourceId })),
+      },
+    };
+
+    setStatusPost("Memperbarui Bahan Baku");
+    setLoading(true);
+    noClose(true);
+
+    const res = await editProduct(id, data);
+    if (res) {
+      setStatusPost("Bahan Baku Diperbarui");
+    } else {
+      setStatusPost("Bahan Baku Gagal Diperbarui");
+    }
+    setTimeout(() => {
+      refreshProduct();
+      closeModal();
+      setLoading(false);
+      noClose(false);
+    }, 1000);
   };
 
   return (
@@ -104,7 +90,6 @@ const SelectResource = ({ move }) => {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="grid gap-4">
-
           {resources.map((reso) => {
             const isChecked = selectedResources.includes(reso.id);
             return (
@@ -116,14 +101,23 @@ const SelectResource = ({ move }) => {
                   checked={isChecked}
                   onChange={() => handleCheckboxChange(reso.id)}
                 />
-                <label htmlFor={reso.id} className="ml-2">{reso.name}</label>
+                <label htmlFor={reso.id} className="ml-2">
+                  {reso.name}
+                </label>
               </div>
             );
           })}
-          <div onClick={() => move('Tambah Bahan Baku')}> + Tambah Resources</div>
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+          {/* <div onClick={() => move("Tambah Bahan Baku")}>
+            {" "}
+            + Tambah Resources
+          </div> */}
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
+          </Button>
         </form>
       )}
     </div>

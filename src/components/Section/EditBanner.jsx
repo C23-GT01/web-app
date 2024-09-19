@@ -1,211 +1,126 @@
-import { MdPhotoCamera } from "react-icons/md";
-import React, { useState } from 'react';
-import Icon from '../Elements/Icon';
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import base64ToBlob from "../../utils/toBlob";
+import { upload } from "../../services/upload.service";
+import { editUmkm } from "../../services/umkm.service";
+import Button from "../Elements/Button";
+import CropBanner from "./CropBanner";
 import Loading from "../Elements/Loading";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
 
-const EditBanner = ({ move }) => {
-  const { id } = useParams();
-  const navigate = useNavigate()
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState('Mulai Mengupload');
-  const [selectedFile, setSelectedFile] = useState(false);
-  const [fileLocation, setFileLocation] = useState('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
-  const [fileLocationUpdated, setFileLocationUpdated] = useState(false);
-  const [umkm, setUmkm] = useState(false);
+const EditBanner = ({ data, refresh, closeModal, noClose }) => {
+  const [banner, setBanner] = useState(data.images[0]);
+  const [oldBanner] = useState(data.images[0]);
 
+  // Input Image
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
+  const handleCrop = (value) => {
+    setIsEditing(value);
+  };
 
-    // Check if a file was selected before updating fileLocation
-    if (file) {
-      setFileLocation(URL.createObjectURL(file));
-    } else {
-      setFileLocation('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
+  const handleFileChange = (file) => {
+    setBanner(file);
+  };
+
+  // Validasi
+  const [bannerError, setBannerError] = useState("");
+
+  const validateField = (name, value) => {
+    if (typeof value === "string" && value.trim() === "") {
+      return " ";
+    }
+
+    switch (name) {
+      case "banner":
+        return isEditing ? "Selesaikan Cropping" : "";
+      default:
+        return "";
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await accessToken();
+    const imageError = validateField("banner", banner);
+    setBannerError(imageError);
+    const hasErrors = imageError !== "";
+    setIsSubmitDisabled(hasErrors);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [banner, isEditing]);
 
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
+  // Submit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
-          const response = await axios.get(`https://c23-gt01-01.et.r.appspot.com/umkm/profile`, config);
-          setUmkm(response.data.data.umkm);
-          if (response.data.data.umkm.history !== null) {
-            setFileLocation(response.data.data.umkm.image);
-          }
-        } else {
-          console.log('No access token available.');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  useEffect(() => {
+    if (banner === oldBanner) {
+      setIsSubmitDisabled(true);
+    }
+  }, [banner, oldBanner]);
 
-    fetchData();
-  }, []);
-
-
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
   const handleSubmit = async (event) => {
-    setLoading(true);
     event.preventDefault();
 
-    const file = selectedFile;
+    // Upload Image
+    setLoading(true);
+    setStatusPost("Memproses Gambar...");
+    const blob = await base64ToBlob(banner);
+    setStatusPost("Mengunggah Gambar...");
+    const publicUrl = await upload(blob);
 
-    try {
-
-      if (selectedFile) {
-        setStatusPost('Sedang Mengupload Gambar')
-        const formData = new FormData();
-        formData.append('data', file);
-
-        const token = await accessToken();
-
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-
-          const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
-          console.log('Server response:', response.data.data.fileLocation);
-          setFileLocation(response.data.data.fileLocation);
-          setFileLocationUpdated(true);
-
-        } else {
-          console.log('No access token available.');
-        }
-      } else {
-        setFileLocationUpdated(true);
-      }
-
-
-    } catch (error) {
-      console.error('Error uploading image:', error);
-
-    } finally {
-      setStatusPost('Upload Gambar Selesai')
-      setStatusPost('Sedang Mengupload Data')
-
-
-    }
-  };
-  useEffect(() => {
-    setStatusPost('Sedang Mengupload Data')
-    const fetchData = async () => {
-      if (fileLocationUpdated) {
-        setFileLocationUpdated(false);
-        try {
-          let imageLocation = fileLocation;
-
-          const token = await accessToken();
-
-          if (token) {
-            const config = {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            };
-
-        
-
-            const updatedUmkmData = {
-              image: imageLocation,
-              logo: umkm.logo,
-              history: umkm.history,
-              description: umkm.description,
-              employe: umkm.employe,
-              impact: umkm.impact,
-              name: umkm.name,
-              location: umkm.location,
-              contact: umkm.contact,
-            };
-
-            const response = await axios.put(`https://c23-gt01-01.et.r.appspot.com/umkm`, updatedUmkmData, config);
-            alert(response.data.message);
-
-            setLoading(false);
-            navigate(0);
-          } else {
-            console.log("No access token available.");
-          }
-
-        } catch (error) {
-          console.error('Error posting resource:', error);
-        } finally {
-          setStatusPost('Selesai')
-          setLoading(false)
-          // navigate(0);
-        }
-      }
+    // Save Data
+    const umkmData = {
+      images: [publicUrl],
     };
-
-    fetchData();
-  }, [fileLocationUpdated, fileLocation, statusPost, navigate, id, umkm]);
-
+    setStatusPost("Menyimpan Perubahan");
+    const res = await editUmkm(umkmData);
+    if (res) {
+      setStatusPost("Banner Berhasil Diperbarui");
+      refresh();
+    } else {
+      setStatusPost("Banner Gagal Diperbarui");
+    }
+    setTimeout(() => {
+      setLoading(false);
+      noClose(false);
+      closeModal();
+    }, 1500);
+  };
 
   return (
     <div className="w-full p-4 ">
       {loading ? (
         <div className="loading-indicator">
           <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>{statusPost}</h1>
+          <h1 className="text-sm font-inter mt-1 text-center">{statusPost}</h1>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className='grid gap-4'>
+        <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="fileInput" className="block font-semibold mb-1">Banner</label>
-            <div className="w-full h-72 border rounded-md relative flex justify-center">
-              {selectedFile ? (
-                <img
-                  src={URL.createObjectURL(selectedFile)}
-                  alt="Preview"
-                  className="w-full h-full object-contain rounded-md"
-                />
-              ) : (
-                <img
-                  src={fileLocation}
-                  alt="Preview"
-                  className="w-full h-full object-contain rounded-md"
-                />
-              )}
-              <label htmlFor="fileInput" className="w-full border flex justify-center items-center h-full absolute rounded-md cursor-pointer top-0 ">
-                {/* {(!selectedFile) && <Icon active><MdPhotoCamera /></Icon>} */}
-              </label>
-            </div>
+            <CropBanner
+              handleSetImage={handleFileChange}
+              error={bannerError}
+              handleCrop={handleCrop}
+              prevImage={oldBanner}
+            />
             <input
               type="file"
               id="fileInput"
-              onChange={handleFileChange}
+              name="banner"
+              onChange={(e) => handleFileChange(e.target.files[0])}
               className="hidden"
               accept="image/*"
             />
-
           </div>
 
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
-          <h2 onClick={() => move('Edit Info UMKM')} className='text-sm font-inter mt-1 text-center text-[#aa7b56] hover:text-[#604732] md:col-span-2'>Edit Info UMKM</h2>
-
-
-        </form>)}
+          </Button>
+        </form>
+      )}
     </div>
-
   );
 };
 

@@ -1,6 +1,5 @@
-import { MdPhotoCamera } from "react-icons/md";
+
 import React, { useState } from 'react';
-import Icon from '../Elements/Icon';
 import accessToken from "../../utils/accesToken";
 import axios from "axios";
 import Loading from "../Elements/Loading";

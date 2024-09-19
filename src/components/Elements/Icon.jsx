@@ -20,7 +20,7 @@ const Icon = ({ children, nonactive = false, active = false, hidden = false, siz
     }
   };
 
-  const iconColor = isHovered ? '#886345' : '#BBBBBB';
+  const iconColor = isHovered ? '#dc0000' : '#999999';
   const isHidden = hidden ? 'hidden' : '';
 
   return (

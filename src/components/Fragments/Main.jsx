@@ -3,7 +3,7 @@
 const Main = ({ children, nodiv = false }) => {
 
   return (
-    <main className={`w-full min-h-screen ${(!nodiv) ? 'bg-[#bbb]' : 'bg-fff'} `}>
+    <main className={`w-full ${(!nodiv) ? 'bg-[#bbb]' : 'bg-fff'} `}>
       {children}
     </main>
   );

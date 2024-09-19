@@ -1,53 +1,36 @@
 import React, { useState, useEffect } from "react";
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
 import Loading from "../Elements/Loading";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { getImpactBySlugUmkm } from "../../services/impact.service";
+import { editProduct } from "../../services/product.service";
+import Button from "../Elements/Button";
 
-const SelectImpacts = ({ move }) => {
+const SelectImpacts = ({
+  product,
+  move,
+  refreshProduct,
+  closeModal,
+  noClose,
+}) => {
   const { id } = useParams();
   const [impacts, setImpacts] = useState([]);
-  const [product, setProduct] = useState(false);
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
-  const [selectedImpacts, setSelectedImpacts] = useState([]);
+  const [selectedImpacts, setSelectedImpacts] = useState(
+    product.impact.map((impact) => impact.id)
+  );
+  const [oldImpacts, setOldImpacts] = useState(
+    product.impact.map((impact) => impact.id)
+  );
 
   useEffect(() => {
-    axios.get(`https://c23-gt01-01.et.r.appspot.com/products/${id}`)
-      .then(function (response) {
-        setProduct(response.data.data.product);
-        console.log('product', response.data.data)
-        setSelectedImpacts(
-          response.data.data.product.impact.map((impact) => impact.id) || []
-        );
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }, [id,statusPost]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await accessToken();
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-          const response = await axios.get(`https://c23-gt01-01.et.r.appspot.com/impacts`, config);
-
-          setImpacts(response.data.data.impacts || []);
-        }
-      } catch (error) {
-        console.log(error);
+    setLoading(true);
+    setStatusPost("Memuat Impact");
+    getImpactBySlugUmkm(product.umkm.slug, (data) => {
+      if (data) {
+        setImpacts(data);
+        setLoading(false);
       }
-    };
-
-    fetchData();
-  }, [statusPost]);
+    });
+  }, [product]);
 
   const handleCheckboxChange = (impactId) => {
     if (selectedImpacts.includes(impactId)) {
@@ -57,42 +40,47 @@ const SelectImpacts = ({ move }) => {
     }
   };
 
-  const handleSubmit = async (event) => {
-    setLoading(true);
-    setStatusPost('Sedang Mengubah Data');
-    event.preventDefault();
-    try {
-      const token = await accessToken();
-      if (token) {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-
-        const updatedProductData = {
-          image: product.image,
-          price: product.price,
-          description: product.description,
-          name: product.name,
-          resources: product.resources.map(item => item.id),
-          production: product.production,
-          impact:  selectedImpacts,
-          contribution: product.contribution,
-          category: product.category,
-        };
-
-        const response = await axios.put(`https://c23-gt01-01.et.r.appspot.com/products/${id}`, updatedProductData, config);
-        alert(response.data.message);
-
-        setLoading(false);
-        navigate(0);
-      } else {
-        console.log("No access token available.");
-      }
-    } catch (error) {
-      console.error("Error updating product:", error);
+  // Submit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  useEffect(() => {
+    if (JSON.stringify(selectedImpacts) !== JSON.stringify(oldImpacts)) {
+      setIsSubmitDisabled(false);
+    } else {
+      setIsSubmitDisabled(true);
     }
+  }, [oldImpacts, selectedImpacts]);
+
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const data = {
+      impact: {
+        deleteMany: {},
+        create: selectedImpacts.map((impactId) => ({ impactId })),
+      },
+    };
+
+    console.log(data);
+
+    setStatusPost("Memperbarui Impact");
+    setLoading(true);
+    noClose(true);
+
+    const res = await editProduct(id, data);
+    if (res) {
+      setStatusPost("Impact Diperbarui");
+    } else {
+      setStatusPost("Impact Gagal Diperbarui");
+    }
+    setTimeout(() => {
+      closeModal();
+      refreshProduct();
+      setLoading(false);
+      noClose(false);
+    }, 1000);
   };
 
   return (
@@ -104,7 +92,6 @@ const SelectImpacts = ({ move }) => {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="grid gap-4">
-
           {impacts.map((imp) => {
             const isChecked = selectedImpacts.includes(imp.id);
             return (
@@ -116,14 +103,20 @@ const SelectImpacts = ({ move }) => {
                   checked={isChecked}
                   onChange={() => handleCheckboxChange(imp.id)}
                 />
-                <label htmlFor={imp.id} className="ml-2">{imp.name}</label>
+                <label htmlFor={imp.id} className="ml-2">
+                  {imp.name}
+                </label>
               </div>
             );
           })}
-          <div onClick={() => move('Tambah Impact')}> + Tambah Impacts</div>
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+          {/* <div onClick={() => move("Tambah Impact")}> + Tambah Impacts</div> */}
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
+          </Button>
         </form>
       )}
     </div>

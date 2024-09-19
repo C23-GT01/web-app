@@ -1,67 +1,47 @@
 import React, { useState, useEffect } from "react";
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
 import Loading from "../Elements/Loading";
-import { useNavigate, useParams } from "react-router-dom";
-
-const SelectSummary = ({ move }) => {
+import { useParams } from "react-router-dom";
+import { editProduct } from "../../services/product.service";
+import Button from "../Elements/Button";
+// 146
+const SelectSummary = ({ product, refreshProduct, closeModal, noClose }) => {
   const { id } = useParams();
-  const [resources, setResources] = useState([]);
-  const [product, setProduct] = useState(false);
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
-  const [selectedSummary, setSelectedSummary] = useState([]);
+  const [selectedSummary, setSelectedSummary] = useState(product.contribution);
   const [summary] = useState([
     {
       id: 1,
-      name: 'Minimalisasi Carboon Footprints'
+      name: "Minimalisasi Carboon Footprints",
     },
     {
       id: 2,
-      name: 'Efisiensi Energi'
+      name: "Efisiensi Energi",
     },
     {
       id: 3,
-      name: 'Pengelolaan Limbah'
+      name: "Pengelolaan Limbah",
     },
     {
       id: 4,
-      name: 'Penggunaan bahan baku lokal'
+      name: "Penggunaan bahan baku lokal",
     },
     {
       id: 5,
-      name: 'Efisiensi Air'
+      name: "Efisiensi Air",
     },
     {
       id: 6,
-      name: 'Daur Ulang Produk'
+      name: "Daur Ulang Produk",
     },
     {
       id: 7,
-      name: 'Kesejahteraan Pekerja'
+      name: "Kesejahteraan Pekerja",
     },
     {
       id: 8,
-      name: 'Kesehatan dan Keamanan Lingkungan'
+      name: "Kesehatan dan Keamanan Lingkungan",
     },
-  ])
-
-
-  useEffect(() => {
-    axios.get(`https://c23-gt01-01.et.r.appspot.com/products/${id}`)
-      .then(function (response) {
-        setProduct(response.data.data.product);
-        console.log('product', response.data.data)
-        setSelectedSummary(
-          response.data.data.product.contribution
-        );
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }, [id, statusPost]);
-
+  ]);
+  const [oldSummary, setOldSummary] = useState(product.contribution);
 
   const handleCheckboxChange = (summaryId) => {
     if (selectedSummary.includes(summaryId)) {
@@ -71,44 +51,43 @@ const SelectSummary = ({ move }) => {
     }
   };
 
-  const handleSubmit = async (event) => {
-    setLoading(true);
-    setStatusPost('Sedang Mengubah Data');
-    event.preventDefault();
-    try {
-      const token = await accessToken();
-      if (token) {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-
-        const updatedProductData = {
-          image: product.image,
-          price: product.price,
-          description: product.description,
-          name: product.name,
-          resources: product.resources.map(item => item.id),
-          production: product.production,
-          impact: product.impact.map(item => item.id),
-          contribution: [...selectedSummary],
-          category: product.category,
-        };
-
-        const response = await axios.put(`https://c23-gt01-01.et.r.appspot.com/products/${id}`, updatedProductData, config);
-        alert(response.data.message);
-
-        setLoading(false);
-        navigate(0);
-      } else {
-        console.log("No access token available.");
-      }
-    } catch (error) {
-      console.error("Error updating product:", error);
+  // Submit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  useEffect(() => {
+    if (JSON.stringify(selectedSummary) !== JSON.stringify(oldSummary)) {
+      setIsSubmitDisabled(false);
+    } else {
+      setIsSubmitDisabled(true);
     }
+  }, [oldSummary, selectedSummary]);
+
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const data = {
+      contribution: selectedSummary.sort((a, b) => a - b),
+    };
+
+    setStatusPost("Memperbarui Kontribusi");
+    setLoading(true);
+    noClose(true);
+
+    const res = await editProduct(id, data);
+    if (res) {
+      setStatusPost("Data Diperbarui");
+      refreshProduct();
+    } else {
+      setStatusPost("Data Gagal Diperbarui");
+    }
+    setTimeout(() => {
+      setLoading(false);
+      closeModal();
+      noClose(false);
+    }, 1000);
   };
-  console.log(selectedSummary)
   return (
     <div className="w-full p-4 ">
       {loading ? (
@@ -118,7 +97,6 @@ const SelectSummary = ({ move }) => {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="grid gap-4">
-
           {summary.map((smr) => {
             const isChecked = selectedSummary.includes(smr.id);
             return (
@@ -130,13 +108,19 @@ const SelectSummary = ({ move }) => {
                   checked={isChecked}
                   onChange={() => handleCheckboxChange(smr.id)}
                 />
-                <label htmlFor={smr.id} className="ml-2">{smr.name}</label>
+                <label htmlFor={smr.id} className="ml-2">
+                  {smr.name}
+                </label>
               </div>
             );
           })}
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
+          </Button>
         </form>
       )}
     </div>

@@ -1,226 +1,219 @@
-import { MdPhotoCamera } from "react-icons/md";
-import React, { useState } from 'react';
-import Icon from '../Elements/Icon';
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
+/* eslint-disable no-case-declarations */
+import React, { useState } from "react";
 import Loading from "../Elements/Loading";
-import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
+import Button from "../Elements/Button";
+import Alert from "../Elements/Alert";
+import { editUmkm } from "../../services/umkm.service";
 
-const EditContact = ({ move }) => {
-  const { id } = useParams();
-  const navigate = useNavigate()
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState('Mulai Mengupload');
-  const [email, setEmail] = useState('');
-  const [noHP, setNoHP] = useState('');
-  const [noWA, setNoWA] = useState('');
-  const [isWA, setIsWA] = useState(false);
-  const [umkm, setUmkm] = useState(false);
+const EditContact = ({ data, refresh, closeModal, noClose }) => {
+  const [contact, setContact] = useState({
+    email: data.contact.email,
+    isWA: data.contact.phone.isWhatsApp,
+    noHP: data.contact.phone.phoneNumber,
+    noWA: data.contact.phone.waNumber,
+  });
+  const [oldContact] = useState({
+    email: data.contact.email,
+    isWA: data.contact.phone.isWhatsApp,
+    noHP: data.contact.phone.phoneNumber,
+    noWA: data.contact.phone.waNumber,
+  });
 
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
+  // Input
+  const handleInput = (event) => {
+    const { name, value, type, checked } = event.target;
+    setContact((prevContact) => ({
+      ...prevContact,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  const handleCheckboxChange = () => {
-    setIsWA(!isWA)
-  };
+  // Validasi
+  const [contactError, setContactError] = useState({
+    email: "",
+    noHP: "",
+    noWA: "",
+  });
 
-  const handleNoHPChange = (event) => {
-    const input = event.target.value;
-    // Menggunakan regex untuk memeriksa hanya angka yang dimasukkan
-    const regex = /^[0-9]*$/;
+  const validateField = (name, value) => {
+    if (name === "noWA" && contact.isWA) {
+      return "";
+    }
 
-    // Jika nilai yang dimasukkan sesuai dengan regex atau kosong, maka setNilaiNoHP akan diupdate
-    if (input === '' || regex.test(input)) {
-      setNoHP(input);
+    if (typeof value === "string" && value.trim() === "") {
+      return " ";
+    }
+
+    switch (name) {
+      case "name":
+        return value.length >= 3 ? "" : "Nama minimal 3 karakter";
+      case "email":
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(value) ? "" : "Email tidak valid";
+      case "noHP":
+        const phonePattern = /^[0-9]{10,13}$/;
+        return phonePattern.test(value) ? "" : "Nomor telepon tidak valid";
+      case "noWA":
+        const waPattern = /^[0-9]{10,13}$/;
+        return contact.isWA || (value && waPattern.test(value))
+          ? ""
+          : "Nomor Whatsapp tidak valid";
+      default:
+        return "";
     }
   };
-
-  const handleNoWAChange = (event) => {
-    const input = event.target.value;
-    // Menggunakan regex untuk memeriksa hanya angka yang dimasukkan
-    const regex = /^[0-9]*$/;
-
-    // Jika nilai yang dimasukkan sesuai dengan regex atau kosong, maka setNilaiNoWA akan diupdate
-    if (input === '' || regex.test(input)) {
-      setNoWA(input);
-    }
-  };
-
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await accessToken();
+    const errors = {};
+    Object.keys(contact).forEach((key) => {
+      errors[key] = validateField(key, contact[key], contact);
+    });
+    setContactError(errors);
 
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
+    const hasErrors = Object.values(errors).some((error) => error !== "");
+    setIsSubmitDisabled(hasErrors);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contact]);
 
-          const response = await axios.get(`https://c23-gt01-01.et.r.appspot.com/umkm/profile`, config);
-          setUmkm(response.data.data.umkm);
-          if (response.data.data.umkm.contact !== null) {
-            setEmail(response.data.data.umkm.contact[0].email);
-            setIsWA(response.data.data.umkm.contact[0].phone.isWhatsApp);
-            setNoHP(response.data.data.umkm.contact[0].phone.phoneNumber);
+  //Submit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  useEffect(() => {
+    if (JSON.stringify(contact) === JSON.stringify(oldContact)) {
+      setIsSubmitDisabled(true);
+    }
+  }, [contact, oldContact]);
 
-            if (!response.data.data.umkm.contact[0].phone.isWhatsApp) {
-              setNoWA(response.data.data.umkm.contact[0].phone.waNumber);
-            } else {
-              setNoWA('');
-            }
-
-          }
-        } else {
-          console.log('No access token available.');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("");
   const handleSubmit = async (event) => {
-    setLoading(true);
     event.preventDefault();
 
-    setStatusPost('Sedang Mengupload Data')
-    try {
-      const fetchData = async () => {
+    // Triming
+    const contactData = {
+      email: contact.email.trim(),
+      phone: {
+        phoneNumber: contact.noHP.trim(),
+        isWhatsApp: contact.isWA,
+        waNumber: contact.isWA ? "" : contact.noWA.trim(),
+      },
+    };
 
-        const token = await accessToken();
+    const umkmData = {
+      contact: contactData,
+    };
 
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          };
-
-
-          const phoneData = {
-            isWhatsApp: isWA,
-            phoneNumber: noHP,
-            waNumber: noWA
-          }
-
-
-          const contactData =
-            [
-              {
-                email: email,
-                phone: phoneData
-              }
-
-            ]
-
-
-          const updatedUmkmData = {
-            image: umkm.image,
-            logo: umkm.logo,
-            history: umkm.history,
-            description: umkm.description,
-            employe: umkm.employe,
-            impact: umkm.impact,
-            name: umkm.name,
-            location: umkm.location,
-            contact: contactData,
-          };
-
-          const response = await axios.put(`https://c23-gt01-01.et.r.appspot.com/umkm`, updatedUmkmData, config);
-          alert(response.data.message);
-
-          setLoading(false);
-          navigate(0);
-        } else {
-          console.log("No access token available.");
-        }
-
-      }
-      fetchData();
-    } catch (error) {
-      console.error(error)
+    setLoading(true);
+    setStatusPost("Memperbarui Kontak");
+    noClose(true);
+    const res = await editUmkm(umkmData);
+    if (res) {
+      setStatusPost("Kontak berhasil diperbarui");
+      refresh();
+    } else {
+      setStatusPost("Kontak gagal diperbarui");
     }
-
+    setTimeout(() => {
+      closeModal();
+      setLoading(false);
+      noClose(false);
+    }, 1000);
   };
-
-
 
   return (
     <div className="w-full p-4 ">
       {loading ? (
         <div className="loading-indicator">
           <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>{statusPost}</h1>
+          <h1 className="text-sm font-inter mt-1 text-center">{statusPost}</h1>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className='grid gap-4'>
-
-
+        <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="email" className="block font-semibold mb-1 text-left ">Email</label>
+            <label
+              htmlFor="email"
+              className="block font-semibold mb-1 text-left "
+            >
+              Email
+            </label>
             <input
               type="email"
               id="email"
-              value={email}
-              onChange={handleEmailChange}
+              name="email"
+              value={contact.email}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={contactError.email} />
           </div>
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="noHP" className="block font-semibold mb-1 text-left  ">Nomor Telepon</label>
+            <label
+              htmlFor="noHP"
+              className="block font-semibold mb-1 text-left  "
+            >
+              Nomor Telepon
+            </label>
 
             <input
               type="text"
               id="noHP"
-              value={noHP}
-              onChange={handleNoHPChange}
+              name="noHP"
+              value={contact.noHP}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
 
+            <Alert message={contactError.noHP} />
+
             <div className="flex items-center pt-2">
               <input
                 type="checkbox"
-                id='isWA'
-                value={isWA}
-                checked={isWA}
-                onChange={handleCheckboxChange}
+                id="isWA"
+                name="isWA"
+                value={contact.isWA}
+                checked={contact.isWA}
+                onChange={handleInput}
               />
-              <label htmlFor='isWA' className="ml-2">Ini nomor Whatsapp</label>
+              <label htmlFor="isWA" className="ml-2">
+                Ini nomor Whatsapp
+              </label>
             </div>
           </div>
-          {!isWA &&
+          {!contact.isWA && (
             <div className="mb-4 md:col-span-2">
-              <label htmlFor="noWA" className="block font-semibold mb-1 text-left  ">Whatsapp</label>
+              <label
+                htmlFor="noWA"
+                className="block font-semibold mb-1 text-left  "
+              >
+                Whatsapp
+              </label>
               <input
                 type="text"
                 id="noWA"
-                value={noWA}
-                onChange={handleNoWAChange}
+                name="noWA"
+                value={contact.noWA}
+                onChange={handleInput}
                 className="w-full border rounded-md py-2 px-3"
                 autoComplete="off"
                 required
               />
+              <Alert message={contactError.noWA} />
             </div>
-          }
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+          )}
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
-
-        </form>)}
+          </Button>
+        </form>
+      )}
     </div>
-
   );
 };
 

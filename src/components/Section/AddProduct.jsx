@@ -1,243 +1,257 @@
-import { MdPhotoCamera } from "react-icons/md";
-import React, { useState } from 'react';
-import Icon from '../Elements/Icon';
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import Loading from "../Elements/Loading";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import CropImage from "./CropImage";
+import Button from "../Elements/Button";
+import Alert from "../Elements/Alert";
+import { addProduct, getAllCategories } from "../../services/product.service";
+import base64ToBlob from "../../utils/toBlob";
+import { upload } from "../../services/upload.service";
 
-const AddProduct = ({ move }) => {
-  const navigate = useNavigate()
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState('');
-  const [selectedFile, setSelectedFile] = useState(false);
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
-  const [price, setPrice] = useState(0);
-  const [description, setDescription] = useState('');
-  const [fileLocation, setFileLocation] = useState('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
-  const [fileLocationUpdated, setFileLocationUpdated] = useState(false);
+const AddProduct = ({updateProducts, closeModal, noClose}) => {
+  const [product, setProduct] = useState({
+    name: "",
+    image: "",
+    description: "",
+    price: 0,
+    contribution: [9],
+    categoryId: "",
+  });
 
+  const [categories, setCategories] = useState();
+  useEffect(() => {
+    getAllCategories((data) => {
+      if (data) setCategories(data);
+    });
+  }, []);
+
+  // Input
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleInput = (event) => {
+    const { name, value, type, checked } = event.target;
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleFileChange = (file) => {
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      image: file,
+    }));
+  };
+
+  const handleCrop = (value) => {
+    setIsEditing(value);
+  };
+
+  // Validasi
+
+  const [productError, setProductError] = useState({
+    name: "",
+    image: "",
+    description: "",
+    price: "",
+    categoryId: "",
+  });
+
+  const validateField = (name, value) => {
+    if (typeof value === "string" && value.trim() === "") {
+      return " ";
+    }
+
+    switch (name) {
+      case "name":
+        return value.length >= 3 ? "" : "Nama minimal 3 karakter";
+      case "image":
+        return isEditing ? "Selesaikan Cropping" : "";
+      case "description":
+        return value.length >= 10 ? "" : "Deskripsi minimal 10 karakter";
+      case "price":
+        return value > 0 ? "" : "Harga harus lebih dari 0";
+      case "categoryId":
+        return value !== "" ? "" : "Kategori harus dipilih";
+      default:
+        return "";
+    }
+  };
 
   useEffect(() => {
-    console.log('File Location Updated:', fileLocation);
-  }, [fileLocation]);
+    const errors = {};
+    Object.keys(product).forEach((key) => {
+      errors[key] = validateField(key, product[key], product);
+    });
+    setProductError(errors);
 
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
-  const handlePriceChange = (event) => {
-    setPrice(event.target.value);
-  };
-  const handleCategoryChange = (event) => {
-    const value = parseInt(event.target.value, 10); // Mengonversi nilai ke integer dengan radix 10
-    setCategory(value);
-  };
+    const hasErrors = Object.values(errors).some((error) => error !== "");
+    setIsSubmitDisabled(hasErrors);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product, isEditing]);
 
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
-  };
+  // Sumbmit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
 
   const handleSubmit = async (event) => {
-    setLoading(true);
     event.preventDefault();
 
-    const file = selectedFile;
-
-    try {
-
-      if (selectedFile) {
-        setStatusPost('Sedang Mengupload Gambar')
-        const formData = new FormData();
-        formData.append('data', file);
+    // trimming
+    const name = product.name.trim();
+    const description = product.description.trim();
+    const price = parseInt(product.price, 10);
+    const categoryId = parseInt(product.categoryId, 10);
 
 
-        const token = await accessToken();
+    // upload image
+    setLoading(true);
+    noClose(true);
+    setStatusPost("Sedang Menyimpan Produk");
+    const blob = await base64ToBlob(product.image);
+    const publicUrl = await upload(blob);
 
-        if (token) {
-          console.log(file);
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-
-          const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
-          console.log('Server response:', response.data.data.fileLocation);
-          setFileLocation(response.data.data.fileLocation);
-          console.log('Server response:', response.data.data.fileLocation);
-          setFileLocationUpdated(true);
-
-        } else {
-          console.log('No access token available.');
-        }
-      } else {
-        setFileLocationUpdated(true);
-      }
-
-
-    } catch (error) {
-      console.error('Error uploading image:', error);
-
-    } finally {
-      setStatusPost('Upload Gambar Selesai')
-
-
-    }
-  }
-
-
-  useEffect(() => {
-    setStatusPost('Sedang Mengupload Data')
-    const fetchData = async () => {
-      if (fileLocationUpdated) {
-        try {
-          setFileLocationUpdated(false);
-          let imageLocation = fileLocation;
-          console.log([fileLocation]);
-          console.log([imageLocation]);
-
-          const token = await accessToken();
-
-          if (token) {
-            const config = {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            };
-            const productData = {
-              image: [imageLocation],
-              price: price,
-              description: description,
-              resources: [],
-              name: name,
-              production: [],
-              impact: [],
-              contribution: [9],
-              category: category
-            };
-
-            const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/products', productData, config);
-            setStatusPost('Selesai');
-            alert(response.data.message);
-
-          } else {
-            console.log('No access token available.');
-          }
-        } catch (error) {
-          console.error('Error posting resource:', error);
-        } finally {
-          setStatusPost('Selesai');
-          setLoading(false);
-          navigate(0);
-        }
-      }
+    // save product
+    const productData = {
+      name,
+      description,
+      price,
+      images: [publicUrl],
+      categoryId,
+      contribution: product.contribution,
     };
 
-    fetchData();
-  }, [fileLocationUpdated, fileLocation, price, description, name, category, statusPost, navigate]);
+    const res = await addProduct(productData);
+    console.log(res);
+    if (res) {
+      setStatusPost("Produk Ditambahkan");
+      updateProducts({
+        id: res.data.id,
+        name: res.data.name,
+        description: res.data.description,
+        slug: res.data.slug,
+        price: res.data.price,
+        images: res.data.images,
+      });
+    } else {
+      setStatusPost("Produk Gagal Ditambahkan");
+    }
+    setTimeout(() => {
+      setLoading(false);
+      noClose(false);
+      closeModal();
+    }, 1500);
+  };  
 
   return (
     <div className="w-full p-4 ">
       {loading ? (
         <div className="loading-indicator">
           <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>{statusPost}</h1>
+          <h1 className="text-sm font-inter mt-1 text-center">{statusPost}</h1>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className='grid gap-4'>
+        <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="fileInput" className="block font-semibold mb-1">Gambar</label>
-            <div className="w-full h-72 border rounded-md  relative flex justify-center">
-              {selectedFile && (
-                <img
-                  src={URL.createObjectURL(selectedFile)}
-                  alt="Preview"
-                  className="w-fuli-full object-contain rounded-md"
-                />
-              )}
-
-              <label htmlFor="fileInput" className="w-full border flex justify-center items-center h-full absolute rounded-md cursor-pointer top-0 ">
-                {(!selectedFile) && <Icon active><MdPhotoCamera /></Icon>}
-              </label>
-            </div>
+            <label htmlFor="fileInput" className="block font-semibold mb-1">
+              Foto Produk
+            </label>
+            <CropImage
+              handleSetImage={handleFileChange}
+              error={productError.image}
+              handleCrop={handleCrop}
+            />
             <input
               type="file"
               id="fileInput"
-              onChange={handleFileChange}
+              name="image"
+              onChange={(e) => handleFileChange(e.target.files[0])}
               className="hidden"
               accept="image/*"
             />
-
           </div>
           <div className="mb-4 ">
-            <label htmlFor="name" className="block font-semibold mb-1 ">Nama Produk</label>
+            <label htmlFor="name" className="block font-semibold mb-1 ">
+              Nama Produk
+            </label>
             <input
               type="text"
               id="name"
-              value={name}
-              onChange={handleNameChange}
+              name="name"
+              value={product.name}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={productError.name} />
           </div>
           <div className="mb-4 ">
-            <label htmlFor="price" className="block font-semibold mb-1 ">Harga(Rp)</label>
+            <label htmlFor="price" className="block font-semibold mb-1 ">
+              Harga(Rp)
+            </label>
             <input
               type="number"
-              min='0'
+              min="0"
               id="price"
-              value={price}
-              onChange={handlePriceChange}
+              name="price"
+              value={product.price}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={productError.price} />
           </div>
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="category" className="block font-semibold mb-1">Kategory</label>
+            <label htmlFor="category" className="block font-semibold mb-1">
+              Kategori
+            </label>
             <select
               id="category"
-              value={category}
-              onChange={handleCategoryChange}
+              name="categoryId"
+              value={product.categoryId}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             >
-              <option value="">Pilih Kategori</option>
-              <option value="1">Agrikultur</option>
-              <option value="2">Makanan</option>
-              <option value="3">Minuman</option>
+              <>
+                <option value="">Pilih Kategori</option>
+                {categories && categories.map((category) => (
+                  <option key={category.id} value={category.id}>{category.name}</option>
+                ))}
+              </>
             </select>
+            <Alert message={productError.categoryId} />
           </div>
 
-
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="description" className="block font-semibold mb-1 ">Deskripsi</label>
+            <label htmlFor="description" className="block font-semibold mb-1 ">
+              Deskripsi
+            </label>
             <textarea
               type="text"
               id="description"
-              value={description}
-              onChange={handleDescriptionChange}
+              name="description"
+              value={product.description}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3 h-32"
               autoComplete="off"
               required
             />
+            <Alert message={productError.description} />
           </div>
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
-
-        </form>)}
+          </Button>
+        </form>
+      )}
     </div>
-
   );
 };
 
