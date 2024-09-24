@@ -16,7 +16,6 @@ export const getResourceBySlugUmkm = (slug, callback) => {
 };
 
 
-
 export const addResource = async (data) => {
   const token = await accessToken();
   let config = {};
@@ -30,6 +29,25 @@ export const addResource = async (data) => {
   try {
     const res = await axios.post(`${Endpoint}/resource`, data, config);
     console.log(res);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
+export const deleteResource = async (slug) => {
+  const token = await accessToken();
+  let config = {};
+  if (token) {
+    config.headers = {
+      Authorization: `Bearer ${token}`,
+    };
+  } else {
+    return false;
+  }
+  try {
+    const res = await axios.delete(`${Endpoint}/resource/${slug}`, config);
     return res.data;
   } catch (error) {
     console.log(error);

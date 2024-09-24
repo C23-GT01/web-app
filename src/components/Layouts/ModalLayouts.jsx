@@ -30,7 +30,7 @@ const ModalLayout = ({ title = 'Pop up', children = 'test', onClose, noClose = f
             <MdClose onClick={handleClose} /> 
           </Icon>
         </div>
-        <div className="w-full h-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#886345] scrollbar-track-[#BBB]">{children}</div>
+        <div className="w-full h-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#eaeaea] scrollbar-track-[#BBB]">{children}</div>
       </div>
     </div>
   ) : null;

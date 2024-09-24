@@ -8,6 +8,7 @@ import { addImpact } from "../../services/impact.service";
 import CropImage from "./CropImage";
 import Alert from "../Elements/Alert";
 import Button from "../Elements/Button";
+import { useParams } from "react-router-dom";
 
 const AddImpact = ({
   refreshProduct = () => {},
@@ -15,6 +16,7 @@ const AddImpact = ({
   noClose = () => {},
   move = false,
 }) => {
+  const { id } = useParams();
   const [impact, setImpact] = useState({
     name: "",
     image: "",
@@ -119,8 +121,8 @@ const AddImpact = ({
       noClose(false);
       setLoading(false);
       refreshProduct();
-      
-      if (move) {
+
+      if (id) {
         move();
       } else {
         closeModal();

@@ -57,7 +57,7 @@ const Resources = ({
 
   return (
     <Section title={title}>
-      {select  && (
+      {select && (
         <div className="flex gap-3 mt-10">
           <Button onClick={() => handleOpenModal("Tambah Bahan Baku")}>
             Tambah Bahan Baku
@@ -68,7 +68,9 @@ const Resources = ({
         </div>
       )}
       <div className={style}>
-        {/* {edited && <AddBox openModal={() => handleOpenModal()} />} */}
+        {edited && (
+          <AddBox openModal={() => handleOpenModal("Tambah Bahan Baku")} />
+        )}
         {product.resource.map((resource, index) => (
           <CardResource
             key={index}
@@ -81,6 +83,7 @@ const Resources = ({
             lng={resource.location.lng || null}
             edited={edited}
             id={resource.id}
+            refresh={refreshProduct}
           />
         ))}
         {isModalOpen && (

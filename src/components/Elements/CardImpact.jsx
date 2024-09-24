@@ -16,7 +16,6 @@ const CardImpact = ({
   removeImpact,
 }) => {
   const [isNoClose, setIsNoClose] = useState(false);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contentModal, setContentModal] = useState("Account");
 
@@ -69,7 +68,11 @@ const CardImpact = ({
         </div>
       </div>
       {isModalOpen && (
-        <ModalLayout title={contentModal} onClose={handleCloseModal}>
+        <ModalLayout
+          title={contentModal}
+          noClose={isNoClose}
+          onClose={handleCloseModal}
+        >
           {modalContent}
         </ModalLayout>
       )}
