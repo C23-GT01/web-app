@@ -8,6 +8,7 @@ import Button from "../Elements/Button";
 import base64ToBlob from "../../utils/toBlob";
 import { upload } from "../../services/upload.service";
 import { addResource } from "../../services/resource.service";
+import { useParams } from "react-router-dom";
 
 const AddResource = ({
   refreshProduct = () => {},
@@ -15,6 +16,7 @@ const AddResource = ({
   noClose = () => {},
   move = false,
 }) => {
+  const { id } = useParams();
   const [resource, setResource] = useState({
     name: "",
     image: "",
@@ -156,7 +158,7 @@ const AddResource = ({
     noClose(true);
     setLoading(true);
     setStatusPost("Menambahkan Bahan Baku");
-    
+
     const blob = await base64ToBlob(resource.image);
     const publicUrl = await upload(blob);
 
@@ -184,9 +186,9 @@ const AddResource = ({
     setTimeout(() => {
       noClose(false);
       setLoading(false);
+      refreshProduct();
 
-      if (move) {
-        refreshProduct();
+      if (id) {
         move();
       } else {
         closeModal();
