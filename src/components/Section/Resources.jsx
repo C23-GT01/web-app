@@ -84,6 +84,7 @@ const Resources = ({
             edited={edited}
             id={resource.id}
             refresh={refreshProduct}
+            data={resource}
           />
         ))}
         {isModalOpen && (

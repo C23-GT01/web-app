@@ -1,22 +1,22 @@
 import React, { useState } from "react";
 import Loading from "../Elements/Loading";
-import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import Button from "../Elements/Button";
 import CropImage from "./CropImage";
 import Alert from "../Elements/Alert";
 import base64ToBlob from "../../utils/toBlob";
 import { upload } from "../../services/upload.service";
-import { editImpact } from "../../services/impact.service";
+import { editResource } from "../../services/resource.service";
 
-const EditImpact = ({ data, refresh, closeModal, noClose }) => {
-  const [impact, setImpact] = useState({
+const EditResource = ({ data, refresh, closeModal, noClose }) => {
+  console.log(data);
+  const [resource, setResource] = useState({
     image: data.image,
     name: data.name,
     description: data.description,
   });
 
-  const [oldImpact] = useState({
+  const [oldResource] = useState({
     image: data.image,
     name: data.name,
     description: data.description,
@@ -27,8 +27,8 @@ const EditImpact = ({ data, refresh, closeModal, noClose }) => {
 
   const handleInput = (event) => {
     const { name, value, type, checked } = event.target;
-    setImpact((prevImpact) => ({
-      ...prevImpact,
+    setResource((prevResource) => ({
+      ...prevResource,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
@@ -38,14 +38,14 @@ const EditImpact = ({ data, refresh, closeModal, noClose }) => {
   };
 
   const handleFileChange = (file) => {
-    setImpact((prevImpact) => ({
-      ...prevImpact,
+    setResource((prevResource) => ({
+      ...prevResource,
       image: file,
     }));
   };
 
   // Validasi
-  const [impactError, setImpactError] = useState({
+  const [resourceError, setResourceError] = useState({
     name: "",
     image: "",
     description: "",
@@ -70,24 +70,24 @@ const EditImpact = ({ data, refresh, closeModal, noClose }) => {
 
   useEffect(() => {
     const errors = {};
-    Object.keys(impact).forEach((key) => {
-      errors[key] = validateField(key, impact[key], impact);
+    Object.keys(resource).forEach((key) => {
+      errors[key] = validateField(key, resource[key], resource);
     });
-    setImpactError(errors);
+    setResourceError(errors);
 
     const hasErrors = Object.values(errors).some((error) => error !== "");
     setIsSubmitDisabled(hasErrors);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [impact, isEditing]);
+  }, [resource, isEditing]);
 
   // Submit
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
   useEffect(() => {
-    if (JSON.stringify(impact) === JSON.stringify(oldImpact)) {
+    if (JSON.stringify(resource) === JSON.stringify(oldResource)) {
       setIsSubmitDisabled(true);
     }
-  }, [impact, oldImpact]);
+  }, [resource, oldResource]);
 
   const [loading, setLoading] = useState(false);
   const [statusPost, setStatusPost] = useState("Mulai Mengupload");
@@ -96,38 +96,38 @@ const EditImpact = ({ data, refresh, closeModal, noClose }) => {
     event.preventDefault();
 
     // Triming
-    const name = impact.name.trim();
-    const description = impact.description.trim();
+    const name = resource.name.trim();
+    const description = resource.description.trim();
 
     //Upload Image
     noClose(true);
     setLoading(true);
-    setStatusPost("Memperbarui Impact");
+    setStatusPost("Memperbarui Resource");
 
     let publicUrl;
-    if (impact.image !== oldImpact.image) {
+    if (resource.image !== oldResource.image) {
       setStatusPost("Memproses Gambar...");
-      const blob = await base64ToBlob(impact.image);
+      const blob = await base64ToBlob(resource.image);
       setStatusPost("Mengunggah Gambar...");
       publicUrl = await upload(blob);
     } else {
-      publicUrl = oldImpact.image;
+      publicUrl = oldResource.image;
     }
 
     // Save Data
-    const impactData = {
+    const resourceData = {
       name,
       description,
       image: publicUrl,
     };
 
     setStatusPost("Menyimpan Perubahan");
-    const res = await editImpact(data.id, impactData);
+    const res = await editResource(data.id, resourceData);
     if (res) {
-      setStatusPost("Impact Berhasil Diperbarui");
+      setStatusPost("Resource Berhasil Diperbarui");
       refresh();
     } else {
-      setStatusPost("Gagal Memperbarui Impact");
+      setStatusPost("Gagal Memperbarui Resource");
     }
     setTimeout(() => {
       setLoading(false);
@@ -147,13 +147,13 @@ const EditImpact = ({ data, refresh, closeModal, noClose }) => {
         <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="mb-4 md:col-span-2">
             <label htmlFor="fileInput" className="block font-semibold mb-1">
-              Foto Impact
+              Foto Resource
             </label>
             <CropImage
               handleSetImage={handleFileChange}
-              error={impactError.image}
+              error={resourceError.image}
               handleCrop={handleCrop}
-              prevImage={oldImpact.image}
+              prevImage={oldResource.image}
             />
             <input
               type="file"
@@ -176,13 +176,13 @@ const EditImpact = ({ data, refresh, closeModal, noClose }) => {
               type="text"
               id="name"
               name="name"
-              value={impact.name}
+              value={resource.name}
               onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
-            <Alert message={impactError.name} />
+            <Alert message={resourceError.name} />
           </div>
 
           <div className="mb-4 md:col-span-2">
@@ -193,13 +193,13 @@ const EditImpact = ({ data, refresh, closeModal, noClose }) => {
               type="text"
               id="description"
               name="description"
-              value={impact.description}
+              value={resource.description}
               onChange={handleInput}
               className="w-full border rounded-md py-2 px-3 h-48"
               autoComplete="off"
               required
             />
-            <Alert message={impactError.description} />
+            <Alert message={resourceError.description} />
           </div>
 
           <Button
@@ -215,4 +215,4 @@ const EditImpact = ({ data, refresh, closeModal, noClose }) => {
   );
 };
 
-export default EditImpact;
+export default EditResource;

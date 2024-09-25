@@ -9,6 +9,7 @@ import { useState } from "react";
 import axios from "axios";
 import DeleteResource from "../Section/Product/DeleteResource";
 import ModalLayout from "../Layouts/ModalLayouts";
+import EditResource from "../Section/EditResource";
 
 const CardResource = ({
   src,
@@ -21,6 +22,7 @@ const CardResource = ({
   edited = false,
   id,
   refresh,
+  data,
 }) => {
   const [isNoClose, setIsNoClose] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,7 +40,14 @@ const CardResource = ({
   let modalContent = null;
 
   if (contentModal === "Edit Bahan Baku") {
-    modalContent = "";
+    modalContent = (
+      <EditResource
+        data={data}
+        closeModal={handleCloseModal}
+        noClose={setIsNoClose}
+        refresh={refresh}
+      />
+    );
   } else if (contentModal === "Hapus Bahan Baku") {
     modalContent = (
       <DeleteResource
@@ -62,11 +71,10 @@ const CardResource = ({
         <div className="w-64 p-4">
           {edited && (
             <div className="w-full justify-end flex gap-2 py-2">
-              <Link to={`/product/edit`}>
-                <Icon size="w-6 h-6">
-                  <MdEdit />
-                </Icon>
-              </Link>
+              <Icon size="w-6 h-6">
+                <MdEdit onClick={() => handleOpenModal("Edit Bahan Baku")} />
+              </Icon>
+
               <Icon size="w-6 h-6">
                 <MdDelete onClick={() => handleOpenModal("Hapus Bahan Baku")} />
               </Icon>
