@@ -7,7 +7,7 @@ const DeleteImpact = ({
   message = "Apakah Anda yakin ingin menghapus?",
   slug,
   closeModal,
-  removeImpact,
+  refresh,
   noClose
 }) => {
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ const DeleteImpact = ({
       setLoading(false);
       noClose(false);
       if (res) {
-        removeImpact();
+        refresh();
       }
       closeModal();
     }, 1500);

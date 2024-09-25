@@ -1,240 +1,216 @@
-
-import React, { useState } from 'react';
-import accessToken from "../../utils/accesToken";
-import axios from "axios";
+import React, { useState } from "react";
 import Loading from "../Elements/Loading";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
+import Button from "../Elements/Button";
+import CropImage from "./CropImage";
+import Alert from "../Elements/Alert";
+import base64ToBlob from "../../utils/toBlob";
+import { upload } from "../../services/upload.service";
+import { editImpact } from "../../services/impact.service";
 
-const EditImpact = ({ id }) => {
-  const navigate = useNavigate()
-  const [loading, setLoading] = useState(false);
-  const [statusPost, setStatusPost] = useState('Mulai Mengupload');
-  const [selectedFile, setSelectedFile] = useState(false);
-  const [fileLocation, setFileLocation] = useState('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
-  const [fileLocationUpdated, setFileLocationUpdated] = useState(false);
-  const [impacts, setImpacts] = useState(false);
-  const [description, setDescription] = useState('');
-  const [nameImpact, setNameImpact] = useState('');
+const EditImpact = ({ data, refresh, closeModal, noClose }) => {
+  const [impact, setImpact] = useState({
+    image: data.image,
+    name: data.name,
+    description: data.description,
+  });
 
+  const [oldImpact] = useState({
+    image: data.image,
+    name: data.name,
+    description: data.description,
+  });
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
-    if (file) {
-      setFileLocation(URL.createObjectURL(file));
-    } else {
-      setFileLocation('https://storage.googleapis.com/trackmate_bucket1/assets/images/placeholder.jpg');
+  // Input
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleInput = (event) => {
+    const { name, value, type, checked } = event.target;
+    setImpact((prevImpact) => ({
+      ...prevImpact,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleCrop = (value) => {
+    setIsEditing(value);
+  };
+
+  const handleFileChange = (file) => {
+    setImpact((prevImpact) => ({
+      ...prevImpact,
+      image: file,
+    }));
+  };
+
+  // Validasi
+  const [impactError, setImpactError] = useState({
+    name: "",
+    image: "",
+    description: "",
+  });
+
+  const validateField = (name, value) => {
+    if (typeof value === "string" && value.trim() === "") {
+      return " ";
+    }
+
+    switch (name) {
+      case "name":
+        return value.length >= 3 ? "" : "Nama minimal 3 karakter";
+      case "description":
+        return value.length >= 10 ? "" : "Deskripsi minimal 10 karakter";
+      case "image":
+        return isEditing ? "Selesaikan Cropping" : "";
+      default:
+        return "";
     }
   };
 
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
-  };
-  const handleNameImpactChange = (event) => {
-    setNameImpact(event.target.value);
-  };
+  useEffect(() => {
+    const errors = {};
+    Object.keys(impact).forEach((key) => {
+      errors[key] = validateField(key, impact[key], impact);
+    });
+    setImpactError(errors);
 
+    const hasErrors = Object.values(errors).some((error) => error !== "");
+    setIsSubmitDisabled(hasErrors);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [impact, isEditing]);
+
+  // Submit
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await accessToken();
+    if (JSON.stringify(impact) === JSON.stringify(oldImpact)) {
+      setIsSubmitDisabled(true);
+    }
+  }, [impact, oldImpact]);
 
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-
-          const response = await axios.get(`https://c23-gt01-01.et.r.appspot.com/impacts/${id}`, config);
-          setImpacts(response.data.data.impact);
-          console.log(response.data.data.impact)
-          if (response.data.data.impact.image !== null) {
-            setFileLocation(response.data.data.impact.image);
-            setDescription(response.data.data.impact.description);
-            setNameImpact(response.data.data.impact.name);
-          }
-        } else {
-          console.log('No access token available.');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
+  const [loading, setLoading] = useState(false);
+  const [statusPost, setStatusPost] = useState("Mulai Mengupload");
 
   const handleSubmit = async (event) => {
-    setLoading(true);
     event.preventDefault();
 
-    const file = selectedFile;
+    // Triming
+    const name = impact.name.trim();
+    const description = impact.description.trim();
 
-    try {
+    //Upload Image
+    setLoading(true);
+    setStatusPost("Memperbarui Impact");
 
-      if (selectedFile) {
-        setStatusPost('Sedang Mengupload Gambar')
-        const formData = new FormData();
-        formData.append('data', file);
-
-        const token = await accessToken();
-
-        if (token) {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-
-          const response = await axios.post('https://c23-gt01-01.et.r.appspot.com/upload/images', formData, config);
-          console.log('Server response:', response.data.data.fileLocation);
-          setFileLocation(response.data.data.fileLocation);
-          setFileLocationUpdated(true);
-
-        } else {
-          console.log('No access token available.');
-        }
-      } else {
-        setFileLocationUpdated(true);
-      }
-
-
-    } catch (error) {
-      console.error('Error uploading image:', error);
-
-    } finally {
-      setStatusPost('Upload Gambar Selesai')
-      setStatusPost('Sedang Mengupload Data')
-
-
+    let publicUrl;
+    if (impact.image !== oldImpact.image) {
+      setStatusPost("Memproses Gambar...");
+      const blob = await base64ToBlob(impact.image);
+      setStatusPost("Mengunggah Gambar...");
+      publicUrl = await upload(blob);
+    } else {
+      publicUrl = oldImpact.image;
     }
-  };
-  useEffect(() => {
-    setStatusPost('Sedang Mengupload Data')
-    const fetchData = async () => {
-      if (fileLocationUpdated) {
-        setFileLocationUpdated(false);
-        try {
-          let imageLocation = fileLocation;
 
-          const token = await accessToken();
-
-          if (token) {
-            const config = {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            };
-
-
-
-            const updatedImpactData = {
-              image: imageLocation,
-              description: description,
-              name: nameImpact,
-            };
-
-            const response = await axios.put(`https://c23-gt01-01.et.r.appspot.com/impacts/${id}`, updatedImpactData, config);
-            alert(response.data.message);
-
-            setLoading(false);
-            navigate(0);
-          } else {
-            console.log("No access token available.");
-          }
-
-        } catch (error) {
-          console.error('Error posting resource:', error);
-        } finally {
-          setStatusPost('Selesai')
-          setLoading(false)
-        }
-      }
+    // Save Data
+    const impactData = {
+      name,
+      description,
+      image: publicUrl,
     };
 
-    fetchData();
-  }, [fileLocationUpdated, fileLocation, statusPost, navigate, id, description, nameImpact]);
-
+    setStatusPost("Menyimpan Perubahan");
+    const res = await editImpact(data.id, impactData);
+    if (res) {
+      setStatusPost("Impact Berhasil Diperbarui");
+      refresh();
+    } else {
+      setStatusPost("Gagal Memperbarui Impact");
+    }
+    setTimeout(() => {
+      setLoading(false);
+      noClose(false);
+      closeModal();
+    }, 1500);
+  };
 
   return (
     <div className="w-full p-4 ">
       {loading ? (
         <div className="loading-indicator">
           <Loading />
-          <h1 className='text-sm font-inter mt-1 text-center'>{statusPost}</h1>
+          <h1 className="text-sm font-inter mt-1 text-center">{statusPost}</h1>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className='grid gap-4'>
+        <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="fileInput" className="block font-semibold mb-1">Banner</label>
-            <div className="w-full h-72 border rounded-md relative flex justify-center">
-              {selectedFile ? (
-                <img
-                  src={URL.createObjectURL(selectedFile)}
-                  alt="Preview"
-                  className="w-full h-full object-contain rounded-md"
-                />
-              ) : (
-                <img
-                  src={fileLocation}
-                  alt="Preview"
-                  className="w-full h-full object-contain rounded-md"
-                />
-              )}
-              <label htmlFor="fileInput" className="w-full border flex justify-center items-center h-full absolute rounded-md cursor-pointer top-0 ">
-                {/* {(!selectedFile) && <Icon active><MdPhotoCamera /></Icon>} */}
-              </label>
-            </div>
+            <label htmlFor="fileInput" className="block font-semibold mb-1">
+              Foto Impact
+            </label>
+            <CropImage
+              handleSetImage={handleFileChange}
+              error={impactError.image}
+              handleCrop={handleCrop}
+              prevImage={oldImpact.image}
+            />
             <input
               type="file"
               id="fileInput"
-              onChange={handleFileChange}
+              name="image"
+              onChange={(e) => handleFileChange(e.target.files[0])}
               className="hidden"
               accept="image/*"
             />
-
           </div>
 
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="nameUmkm" className="block font-semibold mb-1 text-left ">Nama UMKM</label>
+            <label
+              htmlFor="nameUmkm"
+              className="block font-semibold mb-1 text-left "
+            >
+              Nama
+            </label>
             <input
               type="text"
-              id="nameUmkm"
-              value={nameImpact}
-              onChange={handleNameImpactChange}
+              id="name"
+              name="name"
+              value={impact.name}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3"
               autoComplete="off"
               required
             />
+            <Alert message={impactError.name} />
           </div>
 
-
           <div className="mb-4 md:col-span-2">
-            <label htmlFor="description" className="block font-semibold mb-1">Deskripsi</label>
+            <label htmlFor="description" className="block font-semibold mb-1">
+              Deskripsi
+            </label>
             <textarea
               type="text"
               id="description"
-              value={description}
-              onChange={handleDescriptionChange}
+              name="description"
+              value={impact.description}
+              onChange={handleInput}
               className="w-full border rounded-md py-2 px-3 h-48"
               autoComplete="off"
               required
             />
+            <Alert message={impactError.description} />
           </div>
 
-          <button type="submit" className="bg-[#9f7451] text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-[#886345] md:col-span-2">
+          <Button
+            disabled={isSubmitDisabled}
+            type="submit"
+            className={`py-2 px-4 w-full mt-2  sm:col-span-2`}
+          >
             Konfirmasi
-          </button>
-          
-
-
-        </form>)}
+          </Button>
+        </form>
+      )}
     </div>
-
   );
 };
 

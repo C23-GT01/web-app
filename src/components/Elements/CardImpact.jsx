@@ -8,12 +8,13 @@ import ModalLayout from "../Layouts/ModalLayouts";
 import DeleteImpact from "../Section/DeleteImpact";
 
 const CardImpact = ({
+  data,
   src,
   description = "...",
   name = "...",
   edited = false,
   id,
-  removeImpact,
+  refresh,
 }) => {
   const [isNoClose, setIsNoClose] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,13 +32,20 @@ const CardImpact = ({
   let modalContent = null;
 
   if (contentModal === "Edit Impact") {
-    modalContent = <EditImpact id={id} />;
+    modalContent = (
+      <EditImpact
+        data={data}
+        closeModal={handleCloseModal}
+        noClose={setIsNoClose}
+        refresh={refresh}
+      />
+    );
   } else if (contentModal === "Hapus Impact") {
     modalContent = (
       <DeleteImpact
         slug={id}
         closeModal={handleCloseModal}
-        removeImpact={removeImpact}
+        refresh={refresh}
         noClose={setIsNoClose}
       />
     );

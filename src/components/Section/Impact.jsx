@@ -87,7 +87,8 @@ const Impact = ({
                   src={impact.image}
                   edited={edited}
                   id={impact.id}
-                  removeImpact={refreshProduct}
+                  data={impact}
+                  refresh={refreshProduct}
                 />
               )
           )}

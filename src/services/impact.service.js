@@ -37,6 +37,26 @@ export const addImpact = async (data) => {
   }
 };
 
+export const editImpact = async (slug,data) => {
+  const token = await accessToken();
+  let config = {};
+  if (token) {
+    config.headers = {
+      Authorization: `Bearer ${token}`,
+    };
+  } else {
+    return false;
+  }
+  try {
+    const res = await axios.put(`${Endpoint}/impact/${slug}`, data, config);
+    console.log(res);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
 export const deleteImpact = async (slug) => {
   const token = await accessToken();
   let config = {};
