@@ -10,6 +10,7 @@ import { getProduct } from "../services/product.service";
 import ErrorPage from "./404";
 import { getUmkmByOwner } from "../services/umkm.service";
 import TopDetail from "../components/Section/Product/TopDetail";
+import ProductCertificate from "../components/Section/Product/ProductCertificate";
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -65,13 +66,18 @@ const EditProductPage = () => {
           <TopDetail data={product} refreshProduct={refreshProduct} edited />
           <Resources product={product} refreshProduct={refreshProduct} select />
           <Process product={product} refreshProduct={refreshProduct} edited />
+          <ProductCertificate
+            refreshProduct={refreshProduct}
+            product={product}
+            edited
+            select
+          />
           <Impact
             refreshProduct={refreshProduct}
             useSummary
             product={product}
             select
           />
-          <Impact refreshProduct={refreshProduct} product={product} select />
           <Produsen data={product.umkm} />
         </HomeLayout>
       ) : (

@@ -9,6 +9,7 @@ import Loading from "../components/Elements/Loading";
 import { getProduct } from "../services/product.service";
 import ErrorPage from "./404";
 import TopDetail from "../components/Section/Product/TopDetail";
+import ProductCertificate from "../components/Section/Product/ProductCertificate";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -53,6 +54,7 @@ const ProductPage = () => {
           <TopDetail data={product} description={product.description} />
           {product.resource.length > 0 && <Resources product={product} />}
           {product.production.length > 0 && <Process product={product} />}
+          {product.certificate.length > 0 && <ProductCertificate product={product} /> }
           <Impact useSummary product={product} />
           <Produsen data={product.umkm} />
         </HomeLayout>
