@@ -41,7 +41,7 @@ const QRCodeGenerator = ({ slug }) => {
       <div id="qrcode" className="p-4 bg-white">
         <QRCode value={`${process.env.APP_URL}/product/${slug}`} size={150} />
       </div>
-      {id && (
+      {slug && (
         <button
           onClick={handleDownload}
           className="bg-[#9a7353] hover:bg-[#6d5038] text-white font-bold py-2 px-4 rounded"
