@@ -1,14 +1,10 @@
 import { IoMdArrowRoundDown } from "react-icons/io";
 import { IoMdArrowRoundUp } from "react-icons/io";
-import { MdArrowCircleDown } from "react-icons/md";
-import { MdArrowCircleUp } from "react-icons/md";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../Elements/Loading";
 import Button from "../../Elements/Button";
 import { editProduct } from "../../../services/product.service";
-import CardProcess from "../../Elements/CardProcess";
-import ImageBox from "../../Elements/Image-box";
 
 const ManageProcess = ({ product, refreshProduct, closeModal, noClose }) => {
   const { id } = useParams();

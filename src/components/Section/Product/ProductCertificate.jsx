@@ -1,9 +1,7 @@
-import CardImpact from "../../Elements/CardImpact";
 import Section from "../Index";
 import AddBox from "../../Elements/AddBox";
 import ModalLayout from "../../Layouts/ModalLayouts";
 import { useState } from "react";
-import Button from "../../Elements/Button";
 import AddProductCertificate from "../AddProductCertificate";
 import CardCertificate from "../../Elements/CardCertificate";
 

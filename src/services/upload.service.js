@@ -21,8 +21,34 @@ export const upload = async (file) => {
       formData,
       config
     );
-    console.log(res);
     return res.data.publicUrl;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
+export const deleteFile = async (publicUrl) => {
+  const token = await accessToken();
+  let config = {};
+  if (token) {
+    config.headers = {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+  } else {
+    return false;
+  }
+
+  try {
+    const fileName = publicUrl.split("/").pop();
+    const { data: res } = await axios.delete(`${Endpoint}/upload`, {
+      ...config,
+      data: { fileName },
+    });
+
+    console.log(res);
+    return res.message; // success message
   } catch (error) {
     console.log(error);
     return false;

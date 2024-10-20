@@ -54,7 +54,9 @@ const ProductPage = () => {
           <TopDetail data={product} description={product.description} />
           {product.resource.length > 0 && <Resources product={product} />}
           {product.production.length > 0 && <Process product={product} />}
-          {product.certificate !== null  && <ProductCertificate product={product} /> }
+          {product.certificate !== null && product.certificate.length > 0 && (
+            <ProductCertificate product={product} />
+          )}
           <Impact useSummary product={product} />
           <Produsen data={product.umkm} />
         </HomeLayout>

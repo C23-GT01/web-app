@@ -6,7 +6,7 @@ import Button from "../Elements/Button";
 import CropImage from "./CropImage";
 import Alert from "../Elements/Alert";
 import base64ToBlob from "../../utils/toBlob";
-import { upload } from "../../services/upload.service";
+import { deleteFile, upload } from "../../services/upload.service";
 import { editUmkm } from "../../services/umkm.service";
 
 const EditUmkmSummary = ({ data, refresh, closeModal, noClose }) => {
@@ -105,7 +105,7 @@ const EditUmkmSummary = ({ data, refresh, closeModal, noClose }) => {
 
     //Upload Image
     setLoading(true);
-    setStatusPost("Memperbarui Sejarah UMKM");
+    setStatusPost("Memperbarui Detail UMKM");
 
     let publicUrl;
     if (umkmDetail.logo !== oldUmkmDetail.logo) {
@@ -113,6 +113,10 @@ const EditUmkmSummary = ({ data, refresh, closeModal, noClose }) => {
       const blob = await base64ToBlob(umkmDetail.logo);
       setStatusPost("Mengunggah Gambar...");
       publicUrl = await upload(blob);
+      //delete old image
+      if (publicUrl) {
+        deleteFile(oldUmkmDetail.logo);
+      }
     } else {
       publicUrl = oldUmkmDetail.logo;
     }

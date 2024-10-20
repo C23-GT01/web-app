@@ -2,6 +2,7 @@ import { useState } from "react";
 import Loading from "../Elements/Loading";
 import Button from "../Elements/Button";
 import { editProduct } from "../../services/product.service";
+import { deleteFile } from "../../services/upload.service";
 
 const DeleteCertificateProduct = ({
   message = "Apakah Anda yakin ingin menghapus?",
@@ -26,6 +27,10 @@ const DeleteCertificateProduct = ({
     const certificateData = {
       certificate: updatedCertificates,
     };
+
+    if (certificate.image) {
+      deleteFile(certificate.image);
+    }
 
     const res = await editProduct(product.slug, certificateData);
 
