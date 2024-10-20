@@ -23,7 +23,7 @@ const QrScanner = ({ isOpen, closeScan }) => {
       scanner.clear();
       setScanResult(result);
       closeScan()
-      window.location.href = 'http://' + result;
+      window.location.href = result;
       scanner.clearUserMedia();
     }
 

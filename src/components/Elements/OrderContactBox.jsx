@@ -1,5 +1,4 @@
 import { SiShopee } from "react-icons/si";
-import { BiLinkExternal } from "react-icons/bi";
 import { MdWhatsapp } from "react-icons/md";
 import tokopedia from "../../assets/img/logo/tokped.svg";
 

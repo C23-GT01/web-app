@@ -40,7 +40,7 @@ const FooterBox = () => {
               <div className="text-inter">dis.kumkm.sigi@gmail.com</div>
             </a>
             <a
-              href="https://dinaskoperasiumkmsigi.com"
+              href="https://dinaskoperasiukmsigi.com"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2"

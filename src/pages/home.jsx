@@ -26,7 +26,7 @@ const HomePage = () => {
     <>
       {products && umkm ? (
         <HomeLayout jumbotron={true} nodiv title="Home" home>
-          <FIlter />
+          {/* <FIlter /> */}
           <Products data={products} name="Produk" preview />
           <Umkm umkm={umkm} />
         </HomeLayout>

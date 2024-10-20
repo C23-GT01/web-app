@@ -46,7 +46,7 @@ const Products = ({
 
   return (
     <Section title={name} nomb>
-      {!edited && <Category />}
+      {/* {!edited && <Category />} */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mt-4">
         {edited && <AddBox openModal={handleOpenModal} className="w-full min-h-60" />}
         {data && data.length > 0 ? (
