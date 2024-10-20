@@ -10,6 +10,7 @@ import { getProduct } from "../services/product.service";
 import ErrorPage from "./404";
 import TopDetail from "../components/Section/Product/TopDetail";
 import ProductCertificate from "../components/Section/Product/ProductCertificate";
+import OrderContact from "../components/Section/Product/OrderContact";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -52,6 +53,7 @@ const ProductPage = () => {
       {product ? (
         <HomeLayout fbBg={fbBg} title={product.name}>
           <TopDetail data={product} description={product.description} />
+          {product.order && <OrderContact data={product}  />}
           {product.resource.length > 0 && <Resources product={product} />}
           {product.production.length > 0 && <Process product={product} />}
           {product.certificate !== null && product.certificate.length > 0 && (

@@ -63,7 +63,6 @@ const SelectImpacts = ({
       },
     };
 
-    console.log(data);
 
     setStatusPost("Memperbarui Impact");
     setLoading(true);

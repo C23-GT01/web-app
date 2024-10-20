@@ -11,6 +11,7 @@ import ErrorPage from "./404";
 import { getUmkmByOwner } from "../services/umkm.service";
 import TopDetail from "../components/Section/Product/TopDetail";
 import ProductCertificate from "../components/Section/Product/ProductCertificate";
+import OrderContact from "../components/Section/Product/OrderContact";
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -64,6 +65,7 @@ const EditProductPage = () => {
       {product ? (
         <HomeLayout fbBg={fbBg} title={product.name}>
           <TopDetail data={product} refreshProduct={refreshProduct} edited />
+          <OrderContact data={product} refresh={refreshProduct} edited/>
           <Resources product={product} refreshProduct={refreshProduct} select />
           <Process product={product} refreshProduct={refreshProduct} edited />
           <ProductCertificate
