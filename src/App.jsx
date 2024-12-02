@@ -10,6 +10,10 @@ import EditProductPage from "./pages/editproduct.jsx";
 import ProductsPage from "./pages/products.jsx";
 import Search from "./pages/search.jsx";
 import UmkmsPage from "./pages/umkms.jsx";
+import DashboardPage from "./pages/admin/dashboard.jsx";
+import AdminUmkmPage from "./pages/admin/umkm.jsx";
+import AdminProductPage from "./pages/admin/product.jsx";
+import AdminLoginPage from "./pages/admin/login.jsx";
 
 const App = () => {
   return (
@@ -26,6 +30,10 @@ const App = () => {
         <Route path="/*" element={<ErrorPage />} />
         <Route path="/search/:keyword" element={<Search />} />
         <Route path="/umkm/page/:page" element={<UmkmsPage />} />
+        <Route path="/dashboard" element={<DashboardPage/>} />
+        <Route path="/admin/umkm" element={<AdminUmkmPage/>} />
+        <Route path="/admin/product" element={<AdminProductPage/>} />
+        <Route path="/admin/login" element={<AdminLoginPage/>} />
       </Routes>
     </BrowserRouter>
   );

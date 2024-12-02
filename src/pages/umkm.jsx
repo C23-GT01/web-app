@@ -23,7 +23,6 @@ const UmkmPage = () => {
     setTimeout(() => {
       getUmkm(id, (data) => {
         if (data) {
-          console.log(data.history);
           setUmkm(data);
           getImpactBySlugUmkm(data.slug, (data) => {
             if (data) {
