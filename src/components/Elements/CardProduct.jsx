@@ -80,29 +80,25 @@ const CardProduct = ({
             </div>
           </div>
         )}
-        {/* <Link to={`/product/${id}`} className="text-black"> */}
         <div className="flex py-4 justify-between items-start p-2">
-          {/* kepanjangan buat bergerak */}
           <div className="relative overflow-hidden w-full">
-            <h1
-              className={`font-h1 text-sm font-inter whitespace-nowrap ${
-                name.length > 10 ? "animate-marquee-2" : ""
-              }  `}
-            >
-              {name}
-            </h1>
+            <Link to={`/product/${slug}`} className="text-black">
+              <h1 className="font-h1 text-sm font-inter overflow-hidden text-ellipsis line-clamp-2">
+                {name}
+              </h1>
+            </Link>
+            {price > 0 && (
+              <h1 className="font-h1 text-sm font-inter text-[#886345] mt-2">
+                {new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  maximumFractionDigits: 0,
+                }).format(price)}
+              </h1>
+            )}
           </div>
-          {price > 0 && (
-            <h1 className="font-h1 text-sm font-inter text-[#886345]">
-              {new Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0,
-              }).format(price)}
-            </h1>
-          )}
         </div>
-        {/* </Link> */}
+
       </>
       {isModalOpen && (
         <ModalLayout
