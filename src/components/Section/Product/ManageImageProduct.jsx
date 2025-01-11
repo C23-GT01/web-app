@@ -62,7 +62,7 @@ const ManageImageProduct = ({
 
     setLoading(true);
     noClose(true);
-    setStatusPost("Memberbarui Gambar Produk");
+    setStatusPost("Memperbarui Gambar Produk");
 
     const res = await editProduct(id, productData);
     if (res) {

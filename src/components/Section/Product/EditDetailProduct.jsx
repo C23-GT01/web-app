@@ -114,7 +114,7 @@ const EditDetailProduct = ({
 
     setLoading(true);
     noClose(true);
-    setStatusPost("Memberbarui Produk");
+    setStatusPost("Memperbarui Produk");
 
     const res = await editProduct(id, productData);
     if (res) {

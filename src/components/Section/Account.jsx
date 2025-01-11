@@ -63,7 +63,7 @@ const Account = ({ move, noClose, closeModal }) => {
     }
     setTimeout(() => {
       setLoading(false);
-      navigate("/");
+      return Window.location.reload();
     }, 700);
   };
 
@@ -129,8 +129,15 @@ const Account = ({ move, noClose, closeModal }) => {
               </Link>
 
               <div
+                
                 className="h-32 font-inter outline outline-red-500 py-2 px-4 rounded-md mt-2 hover:scale-105 flex flex-col justify-around "
-                onClick={handleDeleteUmkm}
+                onClick={
+                  () => {
+                    if (window.confirm("Yakin Ingin Menghapus UMKM")) {
+                      handleDeleteUmkm();
+                    }
+                  }
+                  }
               >
                 <Icon active>
                   <MdDelete />

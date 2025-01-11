@@ -58,7 +58,7 @@ const FooterBox = () => {
           <div className="uppercase font-medium mb-4">Sosial Media</div>
           <div className="flex flex-col gap-2">
             <a
-              href={`facebook.com/dinaskumkmsigi`}
+              href={`https://www.facebook.com/dinaskoperasi.umkmsigi`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2"
@@ -69,7 +69,7 @@ const FooterBox = () => {
               <div className="text-inter">dinaskumkmsigi</div>
             </a>
             <a
-              href={`instagram.com/dinaskumkmsigi`}
+              href={`https://www.instagram.com/dinaskumkmsigi/`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2"

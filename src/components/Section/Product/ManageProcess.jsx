@@ -67,7 +67,7 @@ const ManageProcess = ({ product, refreshProduct, closeModal, noClose }) => {
 
     setLoading(true);
     noClose(true);
-    setStatusPost("Memberbarui Proses");
+    setStatusPost("Memperbarui Proses");
 
     const res = await editProduct(id, productData);
     if (res) {
